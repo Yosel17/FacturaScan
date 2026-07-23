@@ -1,0 +1,21 @@
+# --- Android / Gradle ---
+.gradle/
+build/
+**/build/
+captures/
+.externalNativeBuild/
+.cxx/
+
+# --- Configuración local y credenciales ---
+local.properties
+*.jks
+*.keystore
+google-services.json
+
+# --- Configuración del IDE (Android Studio / IntelliJ) ---
+.idea/
+*.iml
+.DS_Store
+
+# --- Archivos temporales de sistema ---
+Thumbs.db
