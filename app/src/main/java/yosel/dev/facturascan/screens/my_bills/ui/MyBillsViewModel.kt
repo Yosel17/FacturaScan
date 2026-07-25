@@ -3,8 +3,10 @@ package yosel.dev.facturascan.screens.my_bills.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import yosel.dev.facturascan.screens.my_bills.domain.MyBillsRepository
@@ -17,6 +19,9 @@ class MyBillsViewModel @Inject constructor(
 
     private val _state = MutableStateFlow(MyBillsState())
     val state: StateFlow<MyBillsState> = _state
+
+    private val _events = Channel<MyBillsEvent>()
+    val events = _events.receiveAsFlow()
 
     init {
         getMyBills()
@@ -33,13 +38,12 @@ class MyBillsViewModel @Inject constructor(
                         )
                     }
                 }.onFailure { error ->
-                    _state.update {
-                        it.copy(
-                            errorMessage = error.localizedMessage ?: "Error desconocido",
-                            isError = true,
-                            isLoading = false
+                    _state.update { it.copy(isLoading = false) }
+                    _events.send(
+                        element = MyBillsEvent.ShowSnackBarError(
+                            message = "No se puede cargar las facturas"
                         )
-                    }
+                    )
                 }
         }
     }
