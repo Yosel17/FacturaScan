@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import yosel.dev.facturascan.core.components.SnackBarError
 import yosel.dev.facturascan.core.components.TopBarGlobal
@@ -84,7 +85,7 @@ fun MyBillsScreen(
     }
 }
 
-@Preview
+@PreviewLightDark
 @Composable
 private fun Screen() {
     FacturaScanTheme{
