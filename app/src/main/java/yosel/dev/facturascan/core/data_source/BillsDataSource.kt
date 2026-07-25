@@ -2,7 +2,7 @@ package yosel.dev.facturascan.core.data_source
 
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
-import yosel.dev.facturascan.core.model.response.BillResponse
+import yosel.dev.facturascan.core.models.response.BillResponse
 import yosel.dev.facturascan.core.utils.Constants
 import javax.inject.Inject
 

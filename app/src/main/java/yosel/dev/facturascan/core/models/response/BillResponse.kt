@@ -1,4 +1,4 @@
-package yosel.dev.facturascan.core.model.response
+package yosel.dev.facturascan.core.models.response
 
 import com.google.firebase.firestore.DocumentId
 
