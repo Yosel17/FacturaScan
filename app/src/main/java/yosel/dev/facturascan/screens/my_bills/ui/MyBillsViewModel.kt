@@ -31,9 +31,11 @@ class MyBillsViewModel @Inject constructor(
         viewModelScope.launch {
             repository.getAllBills()
                 .onSuccess { bills ->
+                    val total = bills.sumOf { it.totalAmount }
                     _state.update {
                         it.copy(
                             myBills = bills,
+                            totalAmount = total,
                             isLoading = false
                         )
                     }
@@ -41,7 +43,7 @@ class MyBillsViewModel @Inject constructor(
                     _state.update { it.copy(isLoading = false) }
                     _events.send(
                         element = MyBillsEvent.ShowSnackBarError(
-                            message = "No se puede cargar las facturas"
+                            message = "Error al cargar las facturas"
                         )
                     )
                 }

@@ -1,9 +1,17 @@
 package yosel.dev.facturascan.screens.my_bills.ui
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Photo
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -18,7 +26,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import yosel.dev.facturascan.core.components.SnackBarError
@@ -45,7 +52,7 @@ fun MyBillsScreen(
             )
         },
         floatingActionButton = {
-            if (!state.isLoading){
+            if (!state.isLoading && state.myBills.isNotEmpty()){
                 ExtendedFloatingActionButton(
                     onClick = {},
                     icon = {
@@ -66,19 +73,51 @@ fun MyBillsScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ){
-            when{
-                state.isLoading ->{
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        LoadingIndicator()
-                    }
-                }
-                else ->{
-                    BodyMyBills(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(horizontal = 24.dp),
-                        state = state,
+            AnimatedContent(
+                targetState = state,
+                transitionSpec = {
+                    fadeIn(
+                        animationSpec = tween(durationMillis = 300, easing = LinearOutSlowInEasing)
+                    ) + slideInVertically(
+                        initialOffsetY = { fullHeight -> fullHeight / 12 },
+                        animationSpec = tween(durationMillis = 300, easing = LinearOutSlowInEasing)
+                    ) togetherWith fadeOut(
+                        animationSpec = tween(durationMillis = 150)
                     )
+                },
+                contentKey = { targetState ->
+                    when {
+                        targetState.isLoading -> "LOADING"
+                        targetState.myBills.isEmpty() -> "EMPTY"
+                        else -> "CONTENT"
+                    }
+                },
+                label = "MyBillsScreenStateTransition"
+            ) { targetState ->
+                when{
+                    targetState.isLoading ->{
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            LoadingIndicator(
+                                modifier = Modifier.size(75.dp)
+                            )
+                        }
+                    }
+                    targetState.myBills.isEmpty() -> {
+                        EmptyBillsState(
+                            onScanClick = {}
+                        )
+                    }
+                    else -> {
+                        BodyMyBills(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(horizontal = 24.dp),
+                            state = targetState,
+                            onBillClick = { bill ->
+
+                            }
+                        )
+                    }
                 }
             }
         }
@@ -92,7 +131,8 @@ private fun Screen() {
         MyBillsScreen(
             modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
             state = MyBillsState(
-                isLoading = true
+                isLoading = false,
+                totalAmount = 1234.56,
             ),
             snackBarHostState = SnackbarHostState()
         )
