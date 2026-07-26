@@ -95,7 +95,7 @@ private fun Screen() {
         MyBillsScreen(
             modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
             state = MyBillsState(
-                isLoading = true,
+                isLoading = false,
                 totalAmount = 1234.56,
                 myBills = listOf(
                     BillModel(

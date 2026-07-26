@@ -153,30 +153,6 @@ fun BillItem(
     onBillClick: (BillModel) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // 1. Formateador de fecha memorizado (API moderna de Locale)
-    val dateFormatter = remember {
-        SimpleDateFormat("dd MMM yy", Locale.forLanguageTag("es-ES"))
-    }
-
-    // Cálculo memorizado de la fecha
-    val formattedDate = remember(bill.createdAt) {
-        if (bill.createdAt > 0L) {
-            dateFormatter.format(Date(bill.createdAt)).lowercase()
-        } else {
-            "sin fecha"
-        }
-    }
-
-    val formattedAmount = remember(bill.totalAmount) {
-        if (bill.totalAmount % 1.0 == 0.0) {
-            // Para enteros exactos: no muestra decimales (ej. Q100)
-            DecimalFormat("Q#,##0").format(bill.totalAmount)
-        } else {
-            // Para números con decimales: fuerza exactamente 2 decimales (ej. Q420.20)
-            DecimalFormat("Q#,##0.00").format(bill.totalAmount)
-        }
-    }
-
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -236,7 +212,7 @@ fun BillItem(
                     Spacer(modifier = Modifier.width(8.dp))
 
                     Text(
-                        text = formattedAmount,
+                        text = bill.formattedAmount,
                         style = MaterialTheme.typography.titleMedium.copy(
                             fontWeight = FontWeight.Bold
                         ),
@@ -279,7 +255,7 @@ fun BillItem(
                     maxItemsInEachRow = Int.MAX_VALUE
                 ) {
                     Text(
-                        text = formattedDate,
+                        text = bill.formattedDate,
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.align(Alignment.CenterVertically)
@@ -319,36 +295,34 @@ fun BillItem(
     }
 }
 
-val sampleBill = BillModel(
-    id = "1",
-    companyName = "Amazon Services",
-    invoiceNumber = "123456",
-    serialNumber = "A",
-    createdAt = 1781438400000L,
-    totalAmount = 129.40
-)
-
 @PreviewLightDark
 @Composable
 private fun InvoiceItemLightPreview() {
     FacturaScanTheme {
         Surface(modifier = Modifier.padding(16.dp)) {
             BillItem(
-                bill = sampleBill,
+                bill = BillModel(
+                    id = "1",
+                    companyName = "Amazon Services",
+                    invoiceNumber = "123456",
+                    serialNumber = "A",
+                    createdAt = 1781438400000L,
+                    totalAmount = 129.40
+                ),
                 onBillClick = {}
             )
         }
     }
 }
 
-//@Preview(showBackground = true)
-//@Composable
-//private fun MonthlyConsumptionCardPreview() {
-//    FacturaScanTheme {
-//        ConsumptionCard(
-//            amount = "Q1,240.00",
-//            processedInvoicesCount = 24,
-//            modifier = Modifier.padding(16.dp)
-//        )
-//    }
-//}
+@PreviewLightDark
+@Composable
+private fun MonthlyConsumptionCardPreview() {
+    FacturaScanTheme {
+        ConsumptionCard(
+            amount = "Q1,240.00",
+            processedInvoicesCount = 24,
+            modifier = Modifier.padding(16.dp)
+        )
+    }
+}
