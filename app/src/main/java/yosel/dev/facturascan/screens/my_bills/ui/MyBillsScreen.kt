@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Photo
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -22,6 +23,7 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import yosel.dev.facturascan.core.components.SnackBarError
 import yosel.dev.facturascan.core.components.TopBarGlobal
+import yosel.dev.facturascan.core.models.model.BillModel
 import yosel.dev.facturascan.ui.theme.FacturaScanTheme
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -68,7 +70,9 @@ fun MyBillsScreen(
             when{
                 state.isLoading ->{
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        LoadingIndicator()
+                        LoadingIndicator(
+                            modifier = Modifier.size(75.dp)
+                        )
                     }
                 }
                 else ->{
@@ -91,8 +95,26 @@ private fun Screen() {
         MyBillsScreen(
             modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
             state = MyBillsState(
-                isLoading = false,
-                totalAmount = 1234.56
+                isLoading = true,
+                totalAmount = 1234.56,
+                myBills = listOf(
+                    BillModel(
+                        id = "1",
+                        companyName = "Amazon Services",
+                        invoiceNumber = "123456",
+                        serialNumber = "A",
+                        createdAt = 1781438400000L,
+                        totalAmount = 10.00
+                    ),
+                    BillModel(
+                        id = "2",
+                        companyName = "Amazon Services",
+                        invoiceNumber = "123456",
+                        serialNumber = "A",
+                        createdAt = 1781438400000L,
+                        totalAmount = 456.78
+                    )
+                )
             ),
             snackBarHostState = SnackbarHostState()
         )
