@@ -46,7 +46,7 @@ fun MyBillsScreen(
             )
         },
         floatingActionButton = {
-            if (!state.isLoading){
+            if (!state.isLoading && state.myBills.isNotEmpty()){
                 ExtendedFloatingActionButton(
                     onClick = {},
                     icon = {
@@ -75,6 +75,11 @@ fun MyBillsScreen(
                         )
                     }
                 }
+                state.myBills.isEmpty() -> {
+                    EmptyBillsState(
+                        onScanClick = {}
+                    )
+                }
                 else ->{
                     BodyMyBills(
                         modifier = Modifier
@@ -97,24 +102,6 @@ private fun Screen() {
             state = MyBillsState(
                 isLoading = false,
                 totalAmount = 1234.56,
-                myBills = listOf(
-                    BillModel(
-                        id = "1",
-                        companyName = "Amazon Services",
-                        invoiceNumber = "123456",
-                        serialNumber = "A",
-                        createdAt = 1781438400000L,
-                        totalAmount = 10.00
-                    ),
-                    BillModel(
-                        id = "2",
-                        companyName = "Amazon Services",
-                        invoiceNumber = "123456",
-                        serialNumber = "A",
-                        createdAt = 1781438400000L,
-                        totalAmount = 456.78
-                    )
-                )
             ),
             snackBarHostState = SnackbarHostState()
         )
