@@ -18,7 +18,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import yosel.dev.facturascan.core.components.SnackBarError
@@ -92,7 +91,8 @@ private fun Screen() {
         MyBillsScreen(
             modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
             state = MyBillsState(
-                isLoading = true
+                isLoading = false,
+                totalAmount = 1234.56
             ),
             snackBarHostState = SnackbarHostState()
         )

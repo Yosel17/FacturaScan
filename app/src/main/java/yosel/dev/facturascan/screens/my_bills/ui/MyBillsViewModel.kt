@@ -31,9 +31,11 @@ class MyBillsViewModel @Inject constructor(
         viewModelScope.launch {
             repository.getAllBills()
                 .onSuccess { bills ->
+                    val total = bills.sumOf { it.totalAmount }
                     _state.update {
                         it.copy(
                             myBills = bills,
+                            totalAmount = total,
                             isLoading = false
                         )
                     }
