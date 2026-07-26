@@ -31,6 +31,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -46,8 +47,11 @@ import yosel.dev.facturascan.ui.theme.FacturaScanTheme
 @Composable
 fun BodyMyBills(
     modifier: Modifier = Modifier,
-    state: MyBillsState
+    state: MyBillsState,
+    onBillClick: (BillModel) -> Unit
 ) {
+    val currentOnBillClick = rememberUpdatedState(onBillClick)
+
     Column(
         modifier = modifier
     ) {
@@ -80,7 +84,9 @@ fun BodyMyBills(
             ) { bill ->
                 BillItem(
                     bill = bill,
-                    onBillClick = {}
+                    onBillClick = { bill ->
+                        currentOnBillClick.value(bill)
+                    }
                 )
             }
         }
