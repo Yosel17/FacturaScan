@@ -11,11 +11,15 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
+import kotlinx.coroutines.launch
+import yosel.dev.facturascan.core.utils.ObserveAsEvents
+import yosel.dev.facturascan.screens.my_bills.ui.MyBillsEvent
 import yosel.dev.facturascan.screens.my_bills.ui.MyBillsScreen
 import yosel.dev.facturascan.screens.my_bills.ui.MyBillsViewModel
 
@@ -26,6 +30,17 @@ fun EntryProviderScope<NavKey>.myBillsEntry(
         val viewmodel = hiltViewModel<MyBillsViewModel>()
         val state by viewmodel.state.collectAsStateWithLifecycle()
         val snackBarHostState = remember { SnackbarHostState() }
+        val scope = rememberCoroutineScope()
+
+        ObserveAsEvents(viewmodel.events) { event ->
+            when(event){
+                is MyBillsEvent.ShowSnackBarError -> {
+                    scope.launch {
+                        snackBarHostState.showSnackbar(event.message)
+                    }
+                }
+            }
+        }
 
         MyBillsScreen(
             modifier = Modifier

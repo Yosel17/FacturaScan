@@ -43,7 +43,7 @@ class MyBillsViewModel @Inject constructor(
                     _state.update { it.copy(isLoading = false) }
                     _events.send(
                         element = MyBillsEvent.ShowSnackBarError(
-                            message = "No se puede cargar las facturas"
+                            message = "Error al cargar las facturas"
                         )
                     )
                 }

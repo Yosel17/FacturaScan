@@ -23,7 +23,6 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import yosel.dev.facturascan.core.components.SnackBarError
 import yosel.dev.facturascan.core.components.TopBarGlobal
-import yosel.dev.facturascan.core.models.model.BillModel
 import yosel.dev.facturascan.ui.theme.FacturaScanTheme
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
