@@ -41,7 +41,7 @@ fun PermissionRationaleDialog(
         },
         text = {
             Text(
-                text = "Para poder tomar una foto de perfil, necesitamos acceso a tu cámara. No te preocupes, solo la usaremos para esto.",
+                text = "Para escanear tu factura necesitamos acceso a la cámara. Solo la usaremos para este propósito.",
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.bodyMedium
             )
@@ -78,33 +78,31 @@ fun PermissionSettingsDialog(
         onDismissRequest = onDismiss,
         icon = {
             Icon(
-                imageVector = Icons.Default.SettingsSuggest, // O un icono de bloqueo
+                imageVector = Icons.Default.SettingsSuggest,
                 contentDescription = null,
                 modifier = Modifier.size(48.dp),
-                tint = MaterialTheme.colorScheme.error
+                // Usamos primary para llamar la atención de forma amigable
+                tint = MaterialTheme.colorScheme.primary
             )
         },
         title = {
             Text(
-                text = "Cámara bloqueada",
+                text = "Cámara desactivada",
                 textAlign = TextAlign.Center
             )
         },
         text = {
             Text(
-                text = "El permiso de la cámara ha sido denegado permanentemente. Para subir tu foto, debes habilitarlo manualmente desde los ajustes.",
+                text = "Para subir tu factura necesitamos que habilites el acceso a la cámara desde los ajustes de tu dispositivo.",
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.bodyMedium
             )
         },
         confirmButton = {
+            // Button usa por defecto primary / onPrimary de tu tema
             Button(
                 onClick = onGoToSettings,
                 modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.errorContainer,
-                    contentColor = MaterialTheme.colorScheme.onErrorContainer
-                ),
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Text("Ir a Ajustes")
@@ -115,7 +113,7 @@ fun PermissionSettingsDialog(
                 onClick = onDismiss,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Cancelar")
+                Text("Ahora no")
             }
         },
         containerColor = MaterialTheme.colorScheme.surface,
