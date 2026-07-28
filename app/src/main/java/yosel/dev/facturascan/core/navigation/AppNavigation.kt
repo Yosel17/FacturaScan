@@ -27,6 +27,9 @@ fun AppNavigation(startDestination: Screens) {
             uploadBillEntry(
                 onNavigate = { screen ->
                     backStack.add(screen)
+                },
+                onBack = {
+                    backStack.removeLastOrNull()
                 }
             )
 

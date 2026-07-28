@@ -30,6 +30,7 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import yosel.dev.facturascan.core.components.SnackBarError
 import yosel.dev.facturascan.core.components.TopBarGlobal
+import yosel.dev.facturascan.core.navigation.Screens
 import yosel.dev.facturascan.ui.theme.FacturaScanTheme
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -37,7 +38,8 @@ import yosel.dev.facturascan.ui.theme.FacturaScanTheme
 fun MyBillsScreen(
     modifier: Modifier = Modifier,
     state: MyBillsState,
-    snackBarHostState: SnackbarHostState
+    snackBarHostState: SnackbarHostState,
+    onNavigation:(Screens) -> Unit
 ) {
     Scaffold(
         modifier = modifier,
@@ -54,7 +56,9 @@ fun MyBillsScreen(
         floatingActionButton = {
             if (!state.isLoading && state.myBills.isNotEmpty()){
                 ExtendedFloatingActionButton(
-                    onClick = {},
+                    onClick = {
+                        onNavigation(Screens.UploadBill)
+                    },
                     icon = {
                         Icon(
                             imageVector = Icons.Filled.Photo,
@@ -104,7 +108,9 @@ fun MyBillsScreen(
                     }
                     targetState.myBills.isEmpty() -> {
                         EmptyBillsState(
-                            onScanClick = {}
+                            onScanClick = {
+                                onNavigation(Screens.UploadBill)
+                            }
                         )
                     }
                     else -> {
@@ -134,7 +140,8 @@ private fun Screen() {
                 isLoading = false,
                 totalAmount = 1234.56,
             ),
-            snackBarHostState = SnackbarHostState()
+            snackBarHostState = SnackbarHostState(),
+            onNavigation = {}
         )
     }
 }
