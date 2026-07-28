@@ -24,7 +24,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
+import yosel.dev.facturascan.core.components.PermissionRationaleDialog
+import yosel.dev.facturascan.core.components.PermissionSettingsDialog
 import yosel.dev.facturascan.core.components.TopBarGlobal
+import yosel.dev.facturascan.core.utils.openAppSettings
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -38,6 +41,7 @@ fun UploadBillScreen(
     val context = LocalContext.current
 
     Scaffold(
+        modifier = modifier,
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopBarGlobal(
@@ -112,6 +116,26 @@ fun UploadBillScreen(
 
                 },
                 onSelectGallery = { onAction(UploadBillAction.OnSelectGalleryClick) }
+            )
+        }
+
+        if (state.showRationaleDialog){
+            PermissionRationaleDialog(
+                onDismiss = { onAction(UploadBillAction.OnToggleRationaleDialog(show = false)) },
+                onConfirm = {
+                    onAction(UploadBillAction.OnToggleRationaleDialog(show = false))
+                    onAction(UploadBillAction.OnObtainPermits)
+                }
+            )
+        }
+
+        if (state.showSettingsDialog){
+            PermissionSettingsDialog(
+                onDismiss = { onAction(UploadBillAction.OnToggleSettingsDialog(show = false)) },
+                onGoToSettings = {
+                    onAction(UploadBillAction.OnToggleSettingsDialog(show = false))
+                    context.openAppSettings()
+                }
             )
         }
     }

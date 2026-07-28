@@ -114,9 +114,9 @@ fun EntryProviderScope<NavKey>.uploadBillEntry(
                             android.Manifest.permission.CAMERA
                         )
                         if (shouldShowRationale) {
-                            onAction(ProfileAction.ToggleRationaleDialog(true))
+                            viewModel.onAction(UploadBillAction.OnToggleRationaleDialog(true))
                         } else {
-                            onAction(ProfileAction.ToggleSettingsDialog(true))
+                            viewModel.onAction(UploadBillAction.OnToggleSettingsDialog(true))
                         }
                     }
                 }

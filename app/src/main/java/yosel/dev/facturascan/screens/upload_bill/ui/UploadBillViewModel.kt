@@ -59,8 +59,12 @@ class UploadBillViewModel @Inject constructor(
             UploadBillAction.OnProcessBillClick -> {
                 processInvoice()
             }
-
-
+            is UploadBillAction.OnToggleRationaleDialog -> {
+                _state.update { it.copy(showRationaleDialog = action.show) }
+            }
+            is UploadBillAction.OnToggleSettingsDialog -> {
+                _state.update { it.copy(showSettingsDialog = action.show) }
+            }
         }
     }
 

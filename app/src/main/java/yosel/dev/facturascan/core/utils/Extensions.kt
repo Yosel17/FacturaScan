@@ -3,6 +3,9 @@ package yosel.dev.facturascan.core.utils
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
 import yosel.dev.facturascan.core.models.model.BillModel
 import yosel.dev.facturascan.core.models.response.BillResponse
 import java.text.DecimalFormat
@@ -60,4 +63,11 @@ fun Context.findActivity(): Activity? = when (this) {
     is Activity -> this
     is ContextWrapper -> baseContext.findActivity()
     else -> null
+}
+
+fun Context.openAppSettings() {
+    Intent(
+        Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+        Uri.fromParts("package", packageName, null)
+    ).also { startActivity(it) }
 }
