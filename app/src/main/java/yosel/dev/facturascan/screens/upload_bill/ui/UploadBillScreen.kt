@@ -1,5 +1,7 @@
 package yosel.dev.facturascan.screens.upload_bill.ui
 
+import android.Manifest
+import android.content.pm.PackageManager
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -17,10 +19,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
+import yosel.dev.facturascan.core.components.PermissionRationaleDialog
+import yosel.dev.facturascan.core.components.PermissionSettingsDialog
 import yosel.dev.facturascan.core.components.TopBarGlobal
+import yosel.dev.facturascan.core.utils.openAppSettings
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -30,7 +37,11 @@ fun UploadBillScreen(
     snackbarHostState: SnackbarHostState,
     onAction: (UploadBillAction) -> Unit
 ) {
+
+    val context = LocalContext.current
+
     Scaffold(
+        modifier = modifier,
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopBarGlobal(
@@ -91,8 +102,40 @@ fun UploadBillScreen(
         if (state.isBottomSheetVisible) {
             SourceSelectionBottomSheet(
                 onDismiss = { onAction(UploadBillAction.OnDismissBottomSheet) },
-                onSelectCamera = { onAction(UploadBillAction.OnSelectCameraClick) },
+                onSelectCamera = {
+                    val hasPermission = ContextCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.CAMERA
+                    ) == PackageManager.PERMISSION_GRANTED
+
+                    if (hasPermission){
+                        onAction(UploadBillAction.OnSelectCameraClick)
+                    }else{
+                        onAction(UploadBillAction.OnObtainPermits)
+                    }
+
+                },
                 onSelectGallery = { onAction(UploadBillAction.OnSelectGalleryClick) }
+            )
+        }
+
+        if (state.showRationaleDialog){
+            PermissionRationaleDialog(
+                onDismiss = { onAction(UploadBillAction.OnToggleRationaleDialog(show = false)) },
+                onConfirm = {
+                    onAction(UploadBillAction.OnToggleRationaleDialog(show = false))
+                    onAction(UploadBillAction.OnObtainPermits)
+                }
+            )
+        }
+
+        if (state.showSettingsDialog){
+            PermissionSettingsDialog(
+                onDismiss = { onAction(UploadBillAction.OnToggleSettingsDialog(show = false)) },
+                onGoToSettings = {
+                    onAction(UploadBillAction.OnToggleSettingsDialog(show = false))
+                    context.openAppSettings()
+                }
             )
         }
     }

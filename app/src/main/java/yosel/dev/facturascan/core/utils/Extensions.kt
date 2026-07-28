@@ -1,7 +1,15 @@
 package yosel.dev.facturascan.core.utils
 
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
+import androidx.core.content.FileProvider
 import yosel.dev.facturascan.core.models.model.BillModel
 import yosel.dev.facturascan.core.models.response.BillResponse
+import java.io.File
 import java.text.DecimalFormat
 import java.time.Instant
 import java.time.ZoneId
@@ -51,4 +59,31 @@ fun Long.formatDate(): String {
         .atZone(ZoneId.systemDefault())
         .format(dateFormatter)
         .lowercase()
+}
+
+fun Context.findActivity(): Activity? = when (this) {
+    is Activity -> this
+    is ContextWrapper -> baseContext.findActivity()
+    else -> null
+}
+
+fun Context.openAppSettings() {
+    Intent(
+        Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+        Uri.fromParts("package", packageName, null)
+    ).apply {
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    }.also { startActivity(it) }
+}
+
+fun Context.createTempUri(
+    prefix: String = "temp_",
+    suffix: String = ".jpg"
+): Uri {
+    val file = File.createTempFile(prefix, suffix, cacheDir)
+    return FileProvider.getUriForFile(
+        this,
+        "$packageName.fileprovider",
+        file
+    )
 }

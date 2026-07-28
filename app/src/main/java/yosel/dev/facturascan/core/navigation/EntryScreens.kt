@@ -19,6 +19,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.app.ActivityCompat
 import androidx.core.content.FileProvider
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -26,6 +27,8 @@ import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import kotlinx.coroutines.launch
 import yosel.dev.facturascan.core.utils.ObserveAsEvents
+import yosel.dev.facturascan.core.utils.createTempUri
+import yosel.dev.facturascan.core.utils.findActivity
 import yosel.dev.facturascan.screens.my_bills.ui.MyBillsEvent
 import yosel.dev.facturascan.screens.my_bills.ui.MyBillsScreen
 import yosel.dev.facturascan.screens.my_bills.ui.MyBillsViewModel
@@ -76,6 +79,7 @@ fun EntryProviderScope<NavKey>.uploadBillEntry(
         val state by viewModel.state.collectAsStateWithLifecycle()
         val snackbarHostState = remember { SnackbarHostState() }
         val context = LocalContext.current
+        val activity = context.findActivity()
         var tempCameraUri by remember { mutableStateOf<Uri?>(null) }
 
         val galleryLauncher = rememberLauncherForActivityResult(
@@ -92,6 +96,29 @@ fun EntryProviderScope<NavKey>.uploadBillEntry(
             }
         }
 
+        val permissionLauncher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.RequestPermission(),
+            onResult = { isGranted ->
+                if (isGranted) {
+                    val uri = context.createTempUri()
+                    tempCameraUri = uri
+                    cameraLauncher.launch(uri)
+                } else {
+                    if (activity != null) {
+                        val shouldShowRationale = ActivityCompat.shouldShowRequestPermissionRationale(
+                            activity,
+                            android.Manifest.permission.CAMERA
+                        )
+                        if (shouldShowRationale) {
+                            viewModel.onAction(UploadBillAction.OnToggleRationaleDialog(true))
+                        } else {
+                            viewModel.onAction(UploadBillAction.OnToggleSettingsDialog(true))
+                        }
+                    }
+                }
+            }
+        )
+
         ObserveAsEvents(viewModel.events) { event ->
             when (event) {
                 is UploadBillEvent.ShowSnackbar -> {
@@ -104,14 +131,12 @@ fun EntryProviderScope<NavKey>.uploadBillEntry(
                     galleryLauncher.launch("image/*")
                 }
                 UploadBillEvent.LaunchCamera -> {
-                    val file = File.createTempFile("invoice_", ".jpg", context.cacheDir)
-                    val uri = FileProvider.getUriForFile(
-                        context,
-                        "${context.packageName}.fileprovider",
-                        file
-                    )
+                    val uri = context.createTempUri()
                     tempCameraUri = uri
                     cameraLauncher.launch(uri)
+                }
+                UploadBillEvent.LaunchPermission -> {
+                    permissionLauncher.launch(android.Manifest.permission.CAMERA)
                 }
             }
         }

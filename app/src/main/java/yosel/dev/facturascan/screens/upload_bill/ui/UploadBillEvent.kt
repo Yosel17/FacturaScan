@@ -6,4 +6,5 @@ sealed interface UploadBillEvent {
     data object NavigateBack : UploadBillEvent
     data object LaunchCamera : UploadBillEvent
     data object LaunchGallery : UploadBillEvent
+    data object LaunchPermission : UploadBillEvent
 }

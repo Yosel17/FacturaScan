@@ -47,11 +47,23 @@ class UploadBillViewModel @Inject constructor(
                     _eventChannel.send(UploadBillEvent.LaunchGallery)
                 }
             }
+            UploadBillAction.OnObtainPermits -> {
+                _state.update { it.copy(isBottomSheetVisible = false) }
+                viewModelScope.launch {
+                    _eventChannel.send(UploadBillEvent.LaunchPermission)
+                }
+            }
             is UploadBillAction.OnImageSelected -> {
                 _state.update { it.copy(imageUri = action.uri) }
             }
             UploadBillAction.OnProcessBillClick -> {
                 processInvoice()
+            }
+            is UploadBillAction.OnToggleRationaleDialog -> {
+                _state.update { it.copy(showRationaleDialog = action.show) }
+            }
+            is UploadBillAction.OnToggleSettingsDialog -> {
+                _state.update { it.copy(showSettingsDialog = action.show) }
             }
         }
     }
