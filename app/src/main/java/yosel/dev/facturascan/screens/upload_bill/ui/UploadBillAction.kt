@@ -11,4 +11,5 @@ sealed interface UploadBillAction {
     data object OnSelectGalleryClick : UploadBillAction
     data class OnImageSelected(val uri: Uri?) : UploadBillAction
     data object OnProcessBillClick : UploadBillAction
+    data object OnObtainPermits : UploadBillAction
 }

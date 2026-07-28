@@ -1,5 +1,8 @@
 package yosel.dev.facturascan.core.utils
 
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import yosel.dev.facturascan.core.models.model.BillModel
 import yosel.dev.facturascan.core.models.response.BillResponse
 import java.text.DecimalFormat
@@ -51,4 +54,10 @@ fun Long.formatDate(): String {
         .atZone(ZoneId.systemDefault())
         .format(dateFormatter)
         .lowercase()
+}
+
+fun Context.findActivity(): Activity? = when (this) {
+    is Activity -> this
+    is ContextWrapper -> baseContext.findActivity()
+    else -> null
 }
