@@ -27,6 +27,7 @@ import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import kotlinx.coroutines.launch
 import yosel.dev.facturascan.core.utils.ObserveAsEvents
+import yosel.dev.facturascan.core.utils.createTempUri
 import yosel.dev.facturascan.core.utils.findActivity
 import yosel.dev.facturascan.screens.my_bills.ui.MyBillsEvent
 import yosel.dev.facturascan.screens.my_bills.ui.MyBillsScreen
@@ -99,12 +100,7 @@ fun EntryProviderScope<NavKey>.uploadBillEntry(
             contract = ActivityResultContracts.RequestPermission(),
             onResult = { isGranted ->
                 if (isGranted) {
-                    val file = File.createTempFile("invoice_", ".jpg", context.cacheDir)
-                    val uri = FileProvider.getUriForFile(
-                        context,
-                        "${context.packageName}.fileprovider",
-                        file
-                    )
+                    val uri = context.createTempUri()
                     tempCameraUri = uri
                     cameraLauncher.launch(uri)
                 } else {
@@ -135,12 +131,7 @@ fun EntryProviderScope<NavKey>.uploadBillEntry(
                     galleryLauncher.launch("image/*")
                 }
                 UploadBillEvent.LaunchCamera -> {
-                    val file = File.createTempFile("invoice_", ".jpg", context.cacheDir)
-                    val uri = FileProvider.getUriForFile(
-                        context,
-                        "${context.packageName}.fileprovider",
-                        file
-                    )
+                    val uri = context.createTempUri()
                     tempCameraUri = uri
                     cameraLauncher.launch(uri)
                 }

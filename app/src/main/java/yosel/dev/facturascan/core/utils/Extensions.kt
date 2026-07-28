@@ -6,8 +6,10 @@ import android.content.ContextWrapper
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
+import androidx.core.content.FileProvider
 import yosel.dev.facturascan.core.models.model.BillModel
 import yosel.dev.facturascan.core.models.response.BillResponse
+import java.io.File
 import java.text.DecimalFormat
 import java.time.Instant
 import java.time.ZoneId
@@ -72,4 +74,16 @@ fun Context.openAppSettings() {
     ).apply {
         addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     }.also { startActivity(it) }
+}
+
+fun Context.createTempUri(
+    prefix: String = "temp_",
+    suffix: String = ".jpg"
+): Uri {
+    val file = File.createTempFile(prefix, suffix, cacheDir)
+    return FileProvider.getUriForFile(
+        this,
+        "$packageName.fileprovider",
+        file
+    )
 }
