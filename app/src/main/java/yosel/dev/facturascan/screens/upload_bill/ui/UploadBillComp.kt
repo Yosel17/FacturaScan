@@ -35,6 +35,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -45,6 +46,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import kotlinx.coroutines.launch
 
 @Composable
 fun UploadInvoiceBox(
@@ -180,6 +182,8 @@ fun SourceSelectionBottomSheet(
         enabledValues = setOf(SheetValue.Hidden, SheetValue.Expanded)
     )
 ) {
+    val scope = rememberCoroutineScope()
+
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
@@ -206,7 +210,6 @@ fun SourceSelectionBottomSheet(
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface
             )
-
             Text(
                 text = "Elige de dónde quieres obtener la imagen",
                 style = MaterialTheme.typography.bodySmall,
@@ -219,7 +222,13 @@ fun SourceSelectionBottomSheet(
                 title = "Cámara",
                 subtitle = "Tomar una foto al instante",
                 icon = Icons.Default.CameraAlt,
-                onClick = onSelectCamera
+                onClick = {
+                    scope.launch { sheetState.hide() }.invokeOnCompletion {
+                        if (!sheetState.isVisible) {
+                            onSelectCamera()
+                        }
+                    }
+                }
             )
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -229,7 +238,13 @@ fun SourceSelectionBottomSheet(
                 title = "Galería",
                 subtitle = "Seleccionar foto existente",
                 icon = Icons.Default.Image,
-                onClick = onSelectGallery
+                onClick = {
+                    scope.launch { sheetState.hide() }.invokeOnCompletion {
+                        if (!sheetState.isVisible) {
+                            onSelectGallery()
+                        }
+                    }
+                }
             )
         }
     }
