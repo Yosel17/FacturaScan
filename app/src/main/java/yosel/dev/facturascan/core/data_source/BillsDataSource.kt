@@ -18,9 +18,9 @@ class BillsDataSource @Inject constructor(
             .toObjects(BillResponse::class.java)
     }
 
-    suspend fun createBill(id: String, request: BillRequest) {
+    suspend fun createBill(request: BillRequest) {
         firestore.collection(Constants.BILLS_COLLECTION)
-            .document(id)
+            .document(request.id)
             .set(request)
             .await()
     }

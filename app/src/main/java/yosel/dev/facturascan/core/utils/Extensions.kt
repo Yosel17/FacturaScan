@@ -9,6 +9,7 @@ import android.provider.Settings
 import androidx.core.content.FileProvider
 import yosel.dev.facturascan.core.models.ai.BillAiResponse
 import yosel.dev.facturascan.core.models.model.BillModel
+import yosel.dev.facturascan.core.models.request.BillRequest
 import yosel.dev.facturascan.core.models.response.BillResponse
 import yosel.dev.facturascan.core.room.tables.bill.BillEntity
 import java.io.File
@@ -21,7 +22,7 @@ import java.util.Locale
 fun BillResponse.toModel(): BillModel{
     return BillModel(
         id = id,
-        createdAt = createdAt,
+        createdAt = createdAt?.time ?: System.currentTimeMillis(),
         companyName = companyName,
         vendorTaxId = vendorTaxId,
         customerTaxId = customerTaxId,
@@ -53,6 +54,21 @@ fun BillAiResponse.toModel(imageUrl: String = ""): BillModel {
 fun BillModel.toEntity(): BillEntity = BillEntity(
     id = id,
     createdAt = createdAt,
+    companyName = companyName,
+    vendorTaxId = vendorTaxId,
+    customerTaxId = customerTaxId,
+    invoiceNumber = invoiceNumber,
+    serialNumber = serialNumber,
+    authorizationNumber = authorizationNumber,
+    issueDate = issueDate,
+    totalAmount = totalAmount,
+    description = description,
+    imageUrl = imageUrl
+)
+
+fun BillModel.toRequest(): BillRequest = BillRequest(
+    id = id,
+    createdAt = null,
     companyName = companyName,
     vendorTaxId = vendorTaxId,
     customerTaxId = customerTaxId,
