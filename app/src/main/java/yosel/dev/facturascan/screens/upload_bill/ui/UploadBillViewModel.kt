@@ -1,5 +1,6 @@
 package yosel.dev.facturascan.screens.upload_bill.ui
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -9,11 +10,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import yosel.dev.facturascan.screens.upload_bill.domain.UploadBillRepository
 import javax.inject.Inject
 
 @HiltViewModel
 class UploadBillViewModel @Inject constructor(
-    //private val repository: UploadBillRepository
+    private val repository: UploadBillRepository
 ): ViewModel() {
 
     private val _state = MutableStateFlow(UploadBillState())
@@ -69,7 +71,35 @@ class UploadBillViewModel @Inject constructor(
     }
 
     private fun processInvoice(){
+        val currentUri = _state.value.imageUri ?: return
 
+        viewModelScope.launch {
+            _state.update { it.copy(isLoading = true, errorMessage = null) }
+
+            repository.processInvoice(currentUri)
+                .onSuccess { billModel ->
+                    _state.update { it.copy(isLoading = false) }
+                    _eventChannel.send(
+                        UploadBillEvent.ShowSnackbar("Factura procesada: ${billModel.companyName}")
+                    )
+                    println("YoselBug: $billModel")
+                    // TODO: Aquí puedes guardar en Firestore o navegar al detalle según tu flujo
+                }
+                .onFailure { error ->
+                    Log.e("UploadBillViewModel", "Error al procesar la factura", error)
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = error.localizedMessage ?: "Error al procesar la factura"
+                        )
+                    }
+                    _eventChannel.send(
+                        UploadBillEvent.ShowSnackbar(
+                            error.localizedMessage ?: "Ocurrió un error al procesar la factura"
+                        )
+                    )
+                }
+        }
     }
 
 }

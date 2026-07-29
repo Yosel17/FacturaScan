@@ -7,6 +7,7 @@ import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
 import androidx.core.content.FileProvider
+import yosel.dev.facturascan.core.models.ai.BillAiResponse
 import yosel.dev.facturascan.core.models.model.BillModel
 import yosel.dev.facturascan.core.models.response.BillResponse
 import java.io.File
@@ -20,6 +21,21 @@ fun BillResponse.toModel(): BillModel{
     return BillModel(
         id = id,
         createdAt = createdAt,
+        companyName = companyName,
+        vendorTaxId = vendorTaxId,
+        customerTaxId = customerTaxId,
+        invoiceNumber = invoiceNumber,
+        serialNumber = serialNumber,
+        authorizationNumber = authorizationNumber,
+        issueDate = issueDate,
+        totalAmount = totalAmount,
+        description = description,
+        imageUrl = imageUrl
+    )
+}
+
+fun BillAiResponse.toModel(imageUrl: String = ""): BillModel {
+    return BillModel(
         companyName = companyName,
         vendorTaxId = vendorTaxId,
         customerTaxId = customerTaxId,

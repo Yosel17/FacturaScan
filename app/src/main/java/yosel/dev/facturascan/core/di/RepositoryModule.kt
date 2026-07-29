@@ -6,6 +6,8 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import yosel.dev.facturascan.screens.my_bills.data.MyBillsRepositoryImpl
 import yosel.dev.facturascan.screens.my_bills.domain.MyBillsRepository
+import yosel.dev.facturascan.screens.upload_bill.data.UploadBillRepositoryImpl
+import yosel.dev.facturascan.screens.upload_bill.domain.UploadBillRepository
 import javax.inject.Singleton
 
 @Module
@@ -17,4 +19,10 @@ abstract class RepositoryModule {
     abstract fun bindMyBillsRepository(
         impl: MyBillsRepositoryImpl
     ): MyBillsRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindUploadBillRepository(
+        impl: UploadBillRepositoryImpl
+    ): UploadBillRepository
 }
