@@ -80,6 +80,21 @@ fun BillModel.toRequest(): BillRequest = BillRequest(
     description = description,
     imageUrl = imageUrl
 )
+
+fun BillEntity.toModel(): BillModel = BillModel(
+    id = id,
+    createdAt = createdAt,
+    companyName = companyName,
+    vendorTaxId = vendorTaxId,
+    customerTaxId = customerTaxId,
+    invoiceNumber = invoiceNumber,
+    serialNumber = serialNumber,
+    authorizationNumber = authorizationNumber,
+    issueDate = issueDate,
+    totalAmount = totalAmount,
+    description = description,
+    imageUrl = imageUrl
+)
 fun List<BillResponse>.toBillListResponseToModel(): List<BillModel>{
     return map { it.toModel() }
 }
