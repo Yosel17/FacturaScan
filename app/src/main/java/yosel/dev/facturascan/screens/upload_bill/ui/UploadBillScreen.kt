@@ -43,6 +43,7 @@ import androidx.core.content.ContextCompat
 import yosel.dev.facturascan.core.components.LoadingDialog
 import yosel.dev.facturascan.core.components.PermissionRationaleDialog
 import yosel.dev.facturascan.core.components.PermissionSettingsDialog
+import yosel.dev.facturascan.core.components.SnackBarError
 import yosel.dev.facturascan.core.components.TopBarGlobal
 import yosel.dev.facturascan.core.utils.openAppSettings
 import yosel.dev.facturascan.ui.theme.FacturaScanTheme
@@ -67,7 +68,11 @@ fun UploadBillScreen(
 
     Scaffold(
         modifier = modifier,
-        snackbarHost = { SnackbarHost(snackbarHostState) },
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState){ data ->
+                SnackBarError(data = data)
+            }
+        },
         topBar = {
             TopBarGlobal(
                 title = "Cargar Factura",

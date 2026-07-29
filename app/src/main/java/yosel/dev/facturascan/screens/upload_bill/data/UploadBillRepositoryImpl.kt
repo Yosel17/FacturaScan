@@ -35,9 +35,9 @@ class UploadBillRepositoryImpl @Inject constructor(
                     ?: return@withContext Result.failure(Exception("No se pudo cargar la imagen"))
 
                 val prompt = """
-                    Analiza la imagen de esta factura y extrae los datos clave. 
+                    Analiza la imagen de esta factura y extrae los datos clave.
                     Devuelve ÚNICAMENTE un objeto JSON estrictamente válido sin formato markdown ni texto adicional.
-                    
+
                     Estructura requerida:
                     {
                       "company_name": "Nombre de la empresa o emisor",

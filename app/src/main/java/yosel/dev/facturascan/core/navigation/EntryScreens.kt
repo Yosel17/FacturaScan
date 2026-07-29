@@ -121,7 +121,7 @@ fun EntryProviderScope<NavKey>.uploadBillEntry(
 
         ObserveAsEvents(viewModel.events) { event ->
             when (event) {
-                is UploadBillEvent.ShowSnackbar -> {
+                is UploadBillEvent.ShowErrorSnackbar -> {
                     snackbarHostState.showSnackbar(event.message)
                 }
                 UploadBillEvent.NavigateBack -> {

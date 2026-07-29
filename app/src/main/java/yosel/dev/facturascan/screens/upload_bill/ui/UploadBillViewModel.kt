@@ -79,23 +79,15 @@ class UploadBillViewModel @Inject constructor(
             repository.processInvoice(currentUri)
                 .onSuccess { billModel ->
                     _state.update { it.copy(isLoading = false) }
-                    _eventChannel.send(
-                        UploadBillEvent.ShowSnackbar("Factura procesada: ${billModel.companyName}")
-                    )
                     println("YoselBug: $billModel")
-                    // TODO: Aquí puedes guardar en Firestore o navegar al detalle según tu flujo
                 }
                 .onFailure { error ->
-                    Log.e("UploadBillViewModel", "Error al procesar la factura", error)
                     _state.update {
-                        it.copy(
-                            isLoading = false,
-                            errorMessage = error.localizedMessage ?: "Error al procesar la factura"
-                        )
+                        it.copy(isLoading = false)
                     }
                     _eventChannel.send(
-                        UploadBillEvent.ShowSnackbar(
-                            error.localizedMessage ?: "Ocurrió un error al procesar la factura"
+                        element = UploadBillEvent.ShowErrorSnackbar(
+                            "Error al escanear la factura. Inténtalo de nuevo."
                         )
                     )
                 }
