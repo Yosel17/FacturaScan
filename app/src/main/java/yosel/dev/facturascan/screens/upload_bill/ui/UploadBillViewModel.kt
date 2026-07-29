@@ -99,6 +99,22 @@ class UploadBillViewModel @Inject constructor(
     private suspend fun saveBillRoom(bill: BillModel){
         repository.saveBillRoom(bill = bill)
             .onSuccess {
+                saveBillFirestore(bill = bill)
+            }.onFailure { error ->
+                _state.update {
+                    it.copy(isLoading = false)
+                }
+                _eventChannel.send(
+                    element = UploadBillEvent.ShowErrorSnackbar(
+                        "Error al guardar la factura."
+                    )
+                )
+            }
+    }
+
+    private suspend fun saveBillFirestore(bill: BillModel){
+        repository.saveBillFirestore(bill = bill)
+            .onSuccess {
                 _state.update {
                     it.copy(isLoading = false)
                 }
@@ -108,7 +124,7 @@ class UploadBillViewModel @Inject constructor(
                 }
                 _eventChannel.send(
                     element = UploadBillEvent.ShowErrorSnackbar(
-                        "Error al guardar la factura."
+                        "Error al guardar la factura en la nube."
                     )
                 )
             }
