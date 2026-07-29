@@ -1,7 +1,9 @@
 package yosel.dev.facturascan.core.models.ai
 
 import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class BillAiResponse(
     @SerialName("company_name")
     val companyName: String = "",

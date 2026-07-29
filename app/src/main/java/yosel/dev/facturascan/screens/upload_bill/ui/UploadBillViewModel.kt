@@ -1,5 +1,6 @@
 package yosel.dev.facturascan.screens.upload_bill.ui
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -81,9 +82,11 @@ class UploadBillViewModel @Inject constructor(
                     _eventChannel.send(
                         UploadBillEvent.ShowSnackbar("Factura procesada: ${billModel.companyName}")
                     )
+                    println("YoselBug: $billModel")
                     // TODO: Aquí puedes guardar en Firestore o navegar al detalle según tu flujo
                 }
                 .onFailure { error ->
+                    Log.e("UploadBillViewModel", "Error al procesar la factura", error)
                     _state.update {
                         it.copy(
                             isLoading = false,
