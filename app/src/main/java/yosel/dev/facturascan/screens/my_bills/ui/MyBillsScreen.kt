@@ -1,12 +1,6 @@
 package yosel.dev.facturascan.screens.my_bills.ui
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.core.LinearOutSlowInEasing
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -79,16 +73,6 @@ fun MyBillsScreen(
         ){
             AnimatedContent(
                 targetState = state,
-                transitionSpec = {
-                    fadeIn(
-                        animationSpec = tween(durationMillis = 300, easing = LinearOutSlowInEasing)
-                    ) + slideInVertically(
-                        initialOffsetY = { fullHeight -> fullHeight / 12 },
-                        animationSpec = tween(durationMillis = 300, easing = LinearOutSlowInEasing)
-                    ) togetherWith fadeOut(
-                        animationSpec = tween(durationMillis = 150)
-                    )
-                },
                 contentKey = { targetState ->
                     when {
                         targetState.isLoading -> "LOADING"

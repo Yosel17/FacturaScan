@@ -1,8 +1,10 @@
 package yosel.dev.facturascan.core.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
+import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 
 @Composable
@@ -13,6 +15,10 @@ fun AppNavigation(startDestination: Screens) {
 
     NavDisplay(
         backStack = backStack,
+        entryDecorators = listOf(
+            rememberSaveableStateHolderNavEntryDecorator(), // Para el estado UI
+            rememberViewModelStoreNavEntryDecorator()       // Para aislar los ViewModels
+        ),
         onBack = {
             backStack.removeLastOrNull()
         },
