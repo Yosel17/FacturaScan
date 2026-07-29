@@ -2,15 +2,22 @@ package yosel.dev.facturascan.screens.upload_bill.ui
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.net.Uri
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CloudUpload
+import androidx.compose.material.icons.filled.DocumentScanner
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -21,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
@@ -28,6 +36,7 @@ import yosel.dev.facturascan.core.components.PermissionRationaleDialog
 import yosel.dev.facturascan.core.components.PermissionSettingsDialog
 import yosel.dev.facturascan.core.components.TopBarGlobal
 import yosel.dev.facturascan.core.utils.openAppSettings
+import yosel.dev.facturascan.ui.theme.FacturaScanTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -89,6 +98,11 @@ fun UploadBillScreen(
                     .height(54.dp),
                 shape = MaterialTheme.shapes.extraLarge
             ) {
+                Icon(
+                    imageVector = Icons.Default.DocumentScanner,
+                    contentDescription = "Procesar Factura",
+                )
+                Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = "Procesar Factura",
                     fontSize = 16.sp,
@@ -138,5 +152,20 @@ fun UploadBillScreen(
                 }
             )
         }
+    }
+}
+
+@PreviewLightDark
+@Composable
+private fun PreviewGlobal(modifier: Modifier = Modifier) {
+    FacturaScanTheme {
+        UploadBillScreen(
+            modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
+            state = UploadBillState(
+                imageUri = Uri.EMPTY
+            ),
+            snackbarHostState = SnackbarHostState(),
+            onAction = {}
+        )
     }
 }
