@@ -2,6 +2,7 @@ package yosel.dev.facturascan.screens.upload_bill.data
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
@@ -34,11 +35,9 @@ class UploadBillRepositoryImpl @Inject constructor(
                 val bitmap = uriToBitmap(imageUri)
                     ?: return@withContext Result.failure(Exception("No se pudo cargar la imagen"))
 
+                // 🚀 El prompt ahora solo dicta la estructura, las reglas ya están en AIModule
                 val prompt = """
-                    Analiza la imagen de esta factura y extrae los datos clave. 
-                    Devuelve ÚNICAMENTE un objeto JSON estrictamente válido sin formato markdown ni texto adicional.
-                    
-                    Estructura requerida:
+                    Extrae la información de esta factura en el siguiente formato JSON:
                     {
                       "company_name": "Nombre de la empresa o emisor",
                       "vendor_tax_id": "NIT o RUC del emisor",
@@ -48,7 +47,6 @@ class UploadBillRepositoryImpl @Inject constructor(
                       "authorization_number": "Número de autorización / DTE",
                       "issue_date": "Fecha de emisión (YYYY-MM-DD)",
                       "total_amount": 0.0,
-                      "description": "Breve resumen de los ítems o concepto"
                     }
                 """.trimIndent()
 
@@ -58,15 +56,11 @@ class UploadBillRepositoryImpl @Inject constructor(
                 }
 
                 val response = generativeModel.generateContent(inputContent)
+
+                // 🚀 Como el mimeType es "application/json", rawText es un JSON puro, sin bloques markdown
                 val rawText = response.text ?: throw Exception("Respuesta vacía de la IA")
 
-                // Limpieza por si la IA incluye bloques ```json ... ```
-                val cleanedJson = rawText
-                    .replace("```json", "")
-                    .replace("```", "")
-                    .trim()
-
-                val aiResponse = json.decodeFromString<BillAiResponse>(cleanedJson)
+                val aiResponse = json.decodeFromString<BillAiResponse>(rawText)
                 Result.success(aiResponse.toModel(imageUrl = imageUri.toString()))
             } catch (e: Exception) {
                 Result.failure(e)
@@ -74,14 +68,47 @@ class UploadBillRepositoryImpl @Inject constructor(
         }
     }
 
+    // 🚀 Redimensionamiento y optimización nativa (ahorra RAM y tokens sin perder lectura)
     private fun uriToBitmap(uri: Uri): Bitmap? {
+        val maxDimension = 1536 // Límite ideal para escaneo OCR
+
         return try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 val source = ImageDecoder.createSource(context.contentResolver, uri)
-                ImageDecoder.decodeBitmap(source)
+                ImageDecoder.decodeBitmap(source) { decoder, info, _ ->
+                    // Usar allocador de software previene crasheos en IA de "Hardware bitmaps not supported"
+                    decoder.allocator = ImageDecoder.ALLOCATOR_SOFTWARE
+
+                    val width = info.size.width
+                    val height = info.size.height
+
+                    if (width > maxDimension || height > maxDimension) {
+                        val scale = maxDimension.toFloat() / maxOf(width, height)
+                        decoder.setTargetSize((width * scale).toInt(), (height * scale).toInt())
+                    }
+                }
             } else {
-                @Suppress("DEPRECATION")
-                MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
+                // Fallback clásico para APIs antiguas (< API 28)
+                val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+                context.contentResolver.openInputStream(uri)?.use {
+                    BitmapFactory.decodeStream(it, null, options)
+                }
+
+                val (width, height) = options.outWidth to options.outHeight
+                var inSampleSize = 1
+                if (width > maxDimension || height > maxDimension) {
+                    val halfHeight = height / 2
+                    val halfWidth = width / 2
+                    while (halfHeight / inSampleSize >= maxDimension && halfWidth / inSampleSize >= maxDimension) {
+                        inSampleSize *= 2
+                    }
+                }
+
+                options.inJustDecodeBounds = false
+                options.inSampleSize = inSampleSize
+                context.contentResolver.openInputStream(uri)?.use {
+                    BitmapFactory.decodeStream(it, null, options)
+                }
             }
         } catch (e: Exception) {
             e.printStackTrace()
