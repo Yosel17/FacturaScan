@@ -74,7 +74,7 @@ class UploadBillViewModel @Inject constructor(
         val currentUri = _state.value.imageUri ?: return
 
         viewModelScope.launch {
-            _state.update { it.copy(isLoading = true, errorMessage = null) }
+            _state.update { it.copy(isLoading = true) }
 
             repository.processInvoice(currentUri)
                 .onSuccess { billModel ->

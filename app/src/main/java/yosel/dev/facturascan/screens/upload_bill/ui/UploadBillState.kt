@@ -6,7 +6,7 @@ data class UploadBillState(
     val imageUri: Uri? = null,
     val isBottomSheetVisible: Boolean = false,
     val isLoading: Boolean = false,
-    val errorMessage: String? = null,
+    val errorMessage: String = "",
     val showRationaleDialog: Boolean = false,
     val showSettingsDialog: Boolean = false
 ){

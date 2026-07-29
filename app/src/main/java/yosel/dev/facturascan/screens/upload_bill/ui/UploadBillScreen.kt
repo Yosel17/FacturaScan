@@ -40,6 +40,7 @@ import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
+import yosel.dev.facturascan.core.components.LoadingDialog
 import yosel.dev.facturascan.core.components.PermissionRationaleDialog
 import yosel.dev.facturascan.core.components.PermissionSettingsDialog
 import yosel.dev.facturascan.core.components.TopBarGlobal
@@ -174,6 +175,13 @@ fun UploadBillScreen(
                     onAction(UploadBillAction.OnToggleSettingsDialog(show = false))
                     context.openAppSettings()
                 }
+            )
+        }
+
+        if (state.isLoading){
+            LoadingDialog(
+                title = "Escaneando factura...",
+                subtitle = "Por favor espera mientras procesamos el documento"
             )
         }
     }
