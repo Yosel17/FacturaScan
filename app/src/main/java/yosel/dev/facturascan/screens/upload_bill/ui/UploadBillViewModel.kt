@@ -10,7 +10,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import yosel.dev.facturascan.core.models.model.BillModel
 import yosel.dev.facturascan.screens.upload_bill.domain.UploadBillRepository
+import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
@@ -78,8 +80,8 @@ class UploadBillViewModel @Inject constructor(
 
             repository.processInvoice(currentUri)
                 .onSuccess { billModel ->
-                    _state.update { it.copy(isLoading = false) }
-                    println("YoselBug: $billModel")
+                    val bill = billModel.copy(id = UUID.randomUUID().toString())
+                    saveBillRoom(bill = bill)
                 }
                 .onFailure { error ->
                     _state.update {
@@ -92,6 +94,24 @@ class UploadBillViewModel @Inject constructor(
                     )
                 }
         }
+    }
+
+    private suspend fun saveBillRoom(bill: BillModel){
+        repository.saveBillRoom(bill = bill)
+            .onSuccess {
+                _state.update {
+                    it.copy(isLoading = false)
+                }
+            }.onFailure { error ->
+                _state.update {
+                    it.copy(isLoading = false)
+                }
+                _eventChannel.send(
+                    element = UploadBillEvent.ShowErrorSnackbar(
+                        "Error al guardar la factura."
+                    )
+                )
+            }
     }
 
 }

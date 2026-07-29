@@ -6,4 +6,6 @@ import yosel.dev.facturascan.core.models.model.BillModel
 interface UploadBillRepository {
 
     suspend fun processInvoice(imageUri: Uri): Result<BillModel>
+
+    suspend fun saveBillRoom(bill: BillModel): Result<Unit>
 }
