@@ -1,10 +1,8 @@
 package yosel.dev.facturascan.core.models.response
 
-import com.google.firebase.firestore.DocumentId
 import java.util.Date
 
 data class BillResponse(
-    @DocumentId
     val id: String = "",
     val createdAt: Date? = null,
 
