@@ -10,6 +10,7 @@ import androidx.core.content.FileProvider
 import yosel.dev.facturascan.core.models.ai.BillAiResponse
 import yosel.dev.facturascan.core.models.model.BillModel
 import yosel.dev.facturascan.core.models.response.BillResponse
+import yosel.dev.facturascan.core.room.tables.bill.BillEntity
 import java.io.File
 import java.text.DecimalFormat
 import java.time.Instant
@@ -48,6 +49,21 @@ fun BillAiResponse.toModel(imageUrl: String = ""): BillModel {
         imageUrl = imageUrl
     )
 }
+
+fun BillModel.toEntity(): BillEntity = BillEntity(
+    id = id,
+    createdAt = createdAt,
+    companyName = companyName,
+    vendorTaxId = vendorTaxId,
+    customerTaxId = customerTaxId,
+    invoiceNumber = invoiceNumber,
+    serialNumber = serialNumber,
+    authorizationNumber = authorizationNumber,
+    issueDate = issueDate,
+    totalAmount = totalAmount,
+    description = description,
+    imageUrl = imageUrl
+)
 fun List<BillResponse>.toBillListResponseToModel(): List<BillModel>{
     return map { it.toModel() }
 }

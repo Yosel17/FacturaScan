@@ -15,13 +15,17 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import yosel.dev.facturascan.core.models.ai.BillAiResponse
 import yosel.dev.facturascan.core.models.model.BillModel
+import yosel.dev.facturascan.core.room.tables.bill.BillDao
+import yosel.dev.facturascan.core.utils.toEntity
 import yosel.dev.facturascan.core.utils.toModel
+import yosel.dev.facturascan.core.utils.uriToBitmap
 import yosel.dev.facturascan.screens.upload_bill.domain.UploadBillRepository
 import javax.inject.Inject
 
 class UploadBillRepositoryImpl @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val generativeModel: GenerativeModel
+    private val generativeModel: GenerativeModel,
+    private val billDao: BillDao
 ):  UploadBillRepository {
 
     private val json = Json {
@@ -32,7 +36,7 @@ class UploadBillRepositoryImpl @Inject constructor(
     override suspend fun processInvoice(imageUri: Uri): Result<BillModel> {
         return withContext(Dispatchers.IO) {
             try {
-                val bitmap = uriToBitmap(imageUri)
+                val bitmap = uriToBitmap(context = context, uri = imageUri)
                     ?: return@withContext Result.failure(Exception("No se pudo cargar la imagen"))
 
                 // 🚀 El prompt ahora solo dicta la estructura, las reglas ya están en AIModule
@@ -68,51 +72,15 @@ class UploadBillRepositoryImpl @Inject constructor(
         }
     }
 
-    // 🚀 Redimensionamiento y optimización nativa (ahorra RAM y tokens sin perder lectura)
-    private fun uriToBitmap(uri: Uri): Bitmap? {
-        val maxDimension = 1536 // Límite ideal para escaneo OCR
-
-        return try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                val source = ImageDecoder.createSource(context.contentResolver, uri)
-                ImageDecoder.decodeBitmap(source) { decoder, info, _ ->
-                    // Usar allocador de software previene crasheos en IA de "Hardware bitmaps not supported"
-                    decoder.allocator = ImageDecoder.ALLOCATOR_SOFTWARE
-
-                    val width = info.size.width
-                    val height = info.size.height
-
-                    if (width > maxDimension || height > maxDimension) {
-                        val scale = maxDimension.toFloat() / maxOf(width, height)
-                        decoder.setTargetSize((width * scale).toInt(), (height * scale).toInt())
-                    }
-                }
-            } else {
-                // Fallback clásico para APIs antiguas (< API 28)
-                val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
-                context.contentResolver.openInputStream(uri)?.use {
-                    BitmapFactory.decodeStream(it, null, options)
-                }
-
-                val (width, height) = options.outWidth to options.outHeight
-                var inSampleSize = 1
-                if (width > maxDimension || height > maxDimension) {
-                    val halfHeight = height / 2
-                    val halfWidth = width / 2
-                    while (halfHeight / inSampleSize >= maxDimension && halfWidth / inSampleSize >= maxDimension) {
-                        inSampleSize *= 2
-                    }
-                }
-
-                options.inJustDecodeBounds = false
-                options.inSampleSize = inSampleSize
-                context.contentResolver.openInputStream(uri)?.use {
-                    BitmapFactory.decodeStream(it, null, options)
-                }
+    override suspend fun saveBillRoom(bill: BillModel): Result<Unit> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val billEntity = bill.toEntity()
+                billDao.upsertBill(bill = billEntity)
+                Result.success(Unit)
+            } catch (e: Exception) {
+                Result.failure(exception = e)
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
         }
     }
 }
