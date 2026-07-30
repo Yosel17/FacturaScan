@@ -7,7 +7,7 @@ interface UploadBillRepository {
 
     suspend fun processInvoice(imageUri: Uri): Result<BillModel>
 
-    suspend fun saveBillRoom(bill: BillModel): Result<Unit>
+    suspend fun saveBillRoom(bill: BillModel): Result<String>
 
     suspend fun saveBillFirestore(bill: BillModel): Result<Unit>
 }

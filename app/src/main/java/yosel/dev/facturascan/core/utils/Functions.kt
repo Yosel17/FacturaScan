@@ -6,7 +6,8 @@ import android.graphics.BitmapFactory
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
-import java.time.format.DateTimeFormatter
+import java.io.File
+import java.io.FileOutputStream
 import java.util.Calendar
 import java.util.Locale
 import java.util.TimeZone
@@ -130,4 +131,26 @@ fun String.parseIssueDateToMillis(): Long? {
     }
 
     return null
+}
+
+fun saveImageToInternalStorage(context: Context, uri: Uri, fileName: String): String? {
+    return try {
+        val directory = File(context.filesDir, "invoices")
+        if (!directory.exists()) {
+            directory.mkdirs()
+        }
+
+        val destinationFile = File(directory, "$fileName.jpg")
+
+        context.contentResolver.openInputStream(uri)?.use { inputStream ->
+            FileOutputStream(destinationFile).use { outputStream ->
+                inputStream.copyTo(outputStream)
+            }
+        } ?: return null
+
+        Uri.fromFile(destinationFile).toString()
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
 }
