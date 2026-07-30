@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import yosel.dev.facturascan.core.models.model.BillModel
 import yosel.dev.facturascan.core.utils.Constants
 import yosel.dev.facturascan.screens.detail_bill.domain.DetailBillRepository
 
@@ -47,12 +48,7 @@ class DetailBillViewModel @AssistedInject constructor(
         viewModelScope.launch {
             repository.getBillById(id = idBill)
                 .onSuccess { billModel ->
-                    _state.update {
-                        it.copy(
-                            currentBill = billModel,
-                            isLoading = false
-                        )
-                    }
+                    successGetBill(billModel)
                 }.onFailure { error ->
                     _state.update {
                         it.copy(
@@ -62,6 +58,24 @@ class DetailBillViewModel @AssistedInject constructor(
                         )
                     }
                 }
+        }
+    }
+
+    private fun successGetBill(bill: BillModel){
+        _state.update {
+            it.copy(
+                currentBill = bill,
+                formState = DetailBillFormState(
+                    serialNumber = bill.serialNumber,
+                    billNumber = bill.invoiceNumber,
+                    issueDate = bill.issueDate,
+                    vendorTaxId = bill.vendorTaxId,
+                    customerTaxId = bill.customerTaxId,
+                    totalAmount = bill.totalAmount.toString(),
+                    description = bill.description
+                ),
+                isLoading = false
+            )
         }
     }
 
