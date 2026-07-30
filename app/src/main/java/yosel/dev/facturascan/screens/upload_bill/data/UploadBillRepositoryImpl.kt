@@ -9,14 +9,12 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
-import yosel.dev.facturascan.core.data_source.BillsDataSource
 import yosel.dev.facturascan.core.models.ai.BillAiResponse
 import yosel.dev.facturascan.core.models.model.BillModel
 import yosel.dev.facturascan.core.room.tables.bill.BillDao
 import yosel.dev.facturascan.core.utils.saveImageToInternalStorage
 import yosel.dev.facturascan.core.utils.toEntity
 import yosel.dev.facturascan.core.utils.toModel
-import yosel.dev.facturascan.core.utils.toRequest
 import yosel.dev.facturascan.core.utils.uriToBitmap
 import yosel.dev.facturascan.screens.upload_bill.domain.UploadBillRepository
 import javax.inject.Inject
@@ -25,7 +23,6 @@ class UploadBillRepositoryImpl @Inject constructor(
     @ApplicationContext private val context: Context,
     private val generativeModel: GenerativeModel,
     private val billDao: BillDao,
-    private val billsDataSource: BillsDataSource
 ):  UploadBillRepository {
 
     private val json = Json {
@@ -81,7 +78,7 @@ class UploadBillRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun saveBillRoom(bill: BillModel): Result<String> {
+    override suspend fun saveBillRoom(bill: BillModel): Result<Unit> {
         return withContext(Dispatchers.IO) {
             try {
                 val tempUri = bill.imageUrl.toUri()
@@ -93,18 +90,6 @@ class UploadBillRepositoryImpl @Inject constructor(
                 val billEntity = updatedBill.toEntity()
                 billDao.upsertBill(bill = billEntity)
 
-                Result.success(persistentUriString)
-            } catch (e: Exception) {
-                Result.failure(exception = e)
-            }
-        }
-    }
-
-    override suspend fun saveBillFirestore(bill: BillModel): Result<Unit> {
-        return withContext(Dispatchers.IO) {
-            try {
-                val billRequest = bill.toRequest()
-                billsDataSource.createBill(request = billRequest)
                 Result.success(Unit)
             } catch (e: Exception) {
                 Result.failure(exception = e)

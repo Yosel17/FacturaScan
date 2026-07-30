@@ -1,6 +1,5 @@
 package yosel.dev.facturascan.screens.upload_bill.ui
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -102,9 +101,10 @@ class UploadBillViewModel @Inject constructor(
 
     private suspend fun saveBillRoom(bill: BillModel){
         repository.saveBillRoom(bill = bill)
-            .onSuccess { imageUrl ->
-                val updatedBill = bill.copy(imageUrl = imageUrl)
-                saveBillFirestore(bill = updatedBill)
+            .onSuccess {
+                _state.update {
+                    it.copy(isLoading = false)
+                }
             }.onFailure { error ->
                 _state.update {
                     it.copy(isLoading = false)
@@ -116,23 +116,4 @@ class UploadBillViewModel @Inject constructor(
                 )
             }
     }
-
-    private suspend fun saveBillFirestore(bill: BillModel){
-        repository.saveBillFirestore(bill = bill)
-            .onSuccess {
-                _state.update {
-                    it.copy(isLoading = false)
-                }
-            }.onFailure { error ->
-                _state.update {
-                    it.copy(isLoading = false)
-                }
-                _eventChannel.send(
-                    element = UploadBillEvent.ShowErrorSnackbar(
-                        "Error al guardar la factura en la nube."
-                    )
-                )
-            }
-    }
-
 }
