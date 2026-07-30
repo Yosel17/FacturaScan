@@ -1,39 +1,36 @@
-package yosel.dev.facturascan.screens.my_bills.ui
+package yosel.dev.facturascan.screens.detail_bill.ui
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Photo
+import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
+import yosel.dev.facturascan.core.components.ErrorDialog
 import yosel.dev.facturascan.core.components.SnackBarError
 import yosel.dev.facturascan.core.components.TopBarGlobal
-import yosel.dev.facturascan.core.navigation.Screens
-import yosel.dev.facturascan.ui.theme.FacturaScanTheme
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun MyBillsScreen(
+fun DetailBillScreen(
     modifier: Modifier = Modifier,
-    state: MyBillsState,
+    state: DetailBillState,
     snackBarHostState: SnackbarHostState,
-    onNavigation:(Screens) -> Unit
+    onAction: (DetailBillAction) -> Unit,
+    onBack: () -> Unit
 ) {
     Scaffold(
         modifier = modifier,
@@ -44,28 +41,25 @@ fun MyBillsScreen(
         },
         topBar = {
             TopBarGlobal(
-                title = "FacturaScan"
+                title = "Detalle Factura",
+                onBack = onBack,
+                actions = {
+                    if (state.currentBill.id.isNotEmpty()){
+                        IconButton(
+                            onClick = {}
+                        ) {
+
+                            Icon(
+                                imageVector = Icons.Rounded.Delete,
+                                contentDescription = "Eliminar",
+                                tint = MaterialTheme.colorScheme.error
+                            )
+                        }
+                    }
+                }
             )
-        },
-        floatingActionButton = {
-            if (!state.isLoading && state.myBills.isNotEmpty()){
-                ExtendedFloatingActionButton(
-                    onClick = {
-                        onNavigation(Screens.UploadBill)
-                    },
-                    icon = {
-                        Icon(
-                            imageVector = Icons.Filled.Photo,
-                            contentDescription = "Photo"
-                        )
-                    },
-                    text = { Text(text = "Escanear Factura") },
-                    expanded = true
-                )
-            }
         }
     ) { paddingValues ->
-
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -74,13 +68,13 @@ fun MyBillsScreen(
             AnimatedContent(
                 targetState = state,
                 contentKey = { targetState ->
-                    when {
+                    when{
                         targetState.isLoading -> "LOADING"
-                        targetState.myBills.isEmpty() -> "EMPTY"
+                        targetState.currentBill.id.isEmpty() -> "EMPTY"
                         else -> "CONTENT"
                     }
                 },
-                label = "MyBillsScreenStateTransition"
+                label = "DetailBillScreenAnimation"
             ) { targetState ->
                 when{
                     targetState.isLoading ->{
@@ -90,42 +84,28 @@ fun MyBillsScreen(
                             )
                         }
                     }
-                    targetState.myBills.isEmpty() -> {
-                        EmptyBillsState(
-                            onScanClick = {
-                                onNavigation(Screens.UploadBill)
-                            }
-                        )
+                    targetState.currentBill.id.isEmpty() -> {
+                        EmptyBillDetailsState()
                     }
-                    else -> {
-                        BodyMyBills(
+                    else ->{
+                        BodyDetailBill(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .padding(horizontal = 24.dp),
-                            state = targetState,
-                            onBillClick = { idBill ->
-                                onNavigation(Screens.DetailBill(idBill = idBill))
-                            }
+                            state = state
                         )
                     }
                 }
             }
         }
-    }
-}
 
-@PreviewLightDark
-@Composable
-private fun Screen() {
-    FacturaScanTheme{
-        MyBillsScreen(
-            modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
-            state = MyBillsState(
-                isLoading = false,
-                totalAmount = 1234.56,
-            ),
-            snackBarHostState = SnackbarHostState(),
-            onNavigation = {}
-        )
+        if (state.isError){
+            ErrorDialog(
+                message = state.errorMessage,
+                onDismissRequest = {
+                    onAction(DetailBillAction.OnDismissErrorDialog)
+                }
+            )
+        }
     }
 }
