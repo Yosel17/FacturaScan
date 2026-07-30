@@ -29,6 +29,8 @@ import kotlinx.coroutines.launch
 import yosel.dev.facturascan.core.utils.ObserveAsEvents
 import yosel.dev.facturascan.core.utils.createTempUri
 import yosel.dev.facturascan.core.utils.findActivity
+import yosel.dev.facturascan.screens.detail_bill.ui.DetailBillScreen
+import yosel.dev.facturascan.screens.detail_bill.ui.DetailBillViewModel
 import yosel.dev.facturascan.screens.my_bills.ui.MyBillsEvent
 import yosel.dev.facturascan.screens.my_bills.ui.MyBillsScreen
 import yosel.dev.facturascan.screens.my_bills.ui.MyBillsViewModel
@@ -155,16 +157,23 @@ fun EntryProviderScope<NavKey>.uploadBillEntry(
 fun EntryProviderScope<NavKey>.detailBillEntry(
     onBack: () -> Unit
 ) {
-    entry<Screens.DetailBill> {
-        Scaffold() { paddingValues ->
-            Column(
-                modifier = Modifier.padding(paddingValues)
-            ) {
-                Text(text = "Detail Bill")
-                Button(onClick = { onBack() }) {
-                    Text(text = "back")
-                }
+    entry<Screens.DetailBill> { detailKey ->
+        val viewModel: DetailBillViewModel = hiltViewModel(
+            creationCallback = { factory: DetailBillViewModel.Factory ->
+                factory.create(detailKey.idBill)
             }
-        }
+        )
+        val state by viewModel.state.collectAsStateWithLifecycle()
+        val snackbarHostState = remember { SnackbarHostState() }
+
+        DetailBillScreen(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+            state = state,
+            snackBarHostState = snackbarHostState,
+            onBack = onBack
+        )
+
     }
 }

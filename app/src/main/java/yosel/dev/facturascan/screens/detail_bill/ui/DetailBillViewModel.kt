@@ -1,9 +1,13 @@
 package yosel.dev.facturascan.screens.detail_bill.ui
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,19 +17,22 @@ import yosel.dev.facturascan.core.navigation.Screens
 import yosel.dev.facturascan.screens.detail_bill.domain.DetailBillRepository
 import javax.inject.Inject
 
-@HiltViewModel
-class DetailBillViewModel @Inject constructor(
+@HiltViewModel(assistedFactory = DetailBillViewModel.Factory::class)
+class DetailBillViewModel @AssistedInject constructor(
     private val repository: DetailBillRepository,
-    savedStateHandle: SavedStateHandle
+    @Assisted private val idBill: String
 ): ViewModel() {
 
-    private val navArgs = savedStateHandle.toRoute<Screens.DetailBill>()
+    @AssistedFactory
+    interface Factory {
+        fun create(idBill: String): DetailBillViewModel
+    }
 
     private val _state = MutableStateFlow(DetailBillState())
     val state: StateFlow<DetailBillState> = _state
 
     init {
-        getBill(idBill = navArgs.idBill)
+        getBill(idBill = idBill)
     }
 
     private fun getBill(idBill: String){

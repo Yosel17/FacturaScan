@@ -103,8 +103,8 @@ fun MyBillsScreen(
                                 .fillMaxSize()
                                 .padding(horizontal = 24.dp),
                             state = targetState,
-                            onBillClick = { bill ->
-
+                            onBillClick = { idBill ->
+                                onNavigation(Screens.DetailBill(idBill = idBill))
                             }
                         )
                     }

@@ -42,14 +42,17 @@ fun DetailBillScreen(
                 title = "Detalle Factura",
                 onBack = onBack,
                 actions = {
-                    IconButton(
-                        onClick = {}
-                    ) {
-                        Icon(
-                            imageVector = Icons.Rounded.Delete,
-                            contentDescription = "Eliminar",
-                            tint = MaterialTheme.colorScheme.errorContainer
-                        )
+                    if (state.currentBill.id.isNotEmpty()){
+                        IconButton(
+                            onClick = {}
+                        ) {
+
+                            Icon(
+                                imageVector = Icons.Rounded.Delete,
+                                contentDescription = "Eliminar",
+                                tint = MaterialTheme.colorScheme.error
+                            )
+                        }
                     }
                 }
             )

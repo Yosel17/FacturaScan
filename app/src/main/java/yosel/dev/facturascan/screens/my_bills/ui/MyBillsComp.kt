@@ -48,7 +48,7 @@ import yosel.dev.facturascan.ui.theme.FacturaScanTheme
 fun BodyMyBills(
     modifier: Modifier = Modifier,
     state: MyBillsState,
-    onBillClick: (BillModel) -> Unit
+    onBillClick: (String) -> Unit
 ) {
     val currentOnBillClick = rememberUpdatedState(onBillClick)
 
@@ -85,7 +85,7 @@ fun BodyMyBills(
                 BillItem(
                     bill = bill,
                     onBillClick = { bill ->
-                        currentOnBillClick.value(bill)
+                        currentOnBillClick.value(bill.id)
                     }
                 )
             }
