@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import yosel.dev.facturascan.core.models.model.BillModel
+import yosel.dev.facturascan.core.utils.Constants
 import yosel.dev.facturascan.screens.upload_bill.domain.UploadBillRepository
 import java.util.UUID
 import javax.inject.Inject
@@ -80,7 +81,10 @@ class UploadBillViewModel @Inject constructor(
 
             repository.processInvoice(currentUri)
                 .onSuccess { billModel ->
-                    val bill = billModel.copy(id = UUID.randomUUID().toString())
+                    val bill = billModel.copy(
+                        id = UUID.randomUUID().toString(),
+                        status = Constants.DRAFT_STATUS
+                    )
                     saveBillRoom(bill = bill)
                 }
                 .onFailure { error ->

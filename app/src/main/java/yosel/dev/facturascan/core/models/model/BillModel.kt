@@ -1,5 +1,6 @@
 package yosel.dev.facturascan.core.models.model
 
+import yosel.dev.facturascan.core.utils.Constants
 import yosel.dev.facturascan.core.utils.formatAmount
 import yosel.dev.facturascan.core.utils.formatDate
 
@@ -15,7 +16,8 @@ data class BillModel(
     val issueDate: String = "",
     val totalAmount: Double = 0.0,
     val description: String = "",
-    val imageUrl: String = ""
+    val imageUrl: String = "",
+    val status: Int = Constants.DRAFT_STATUS
 ){
     // Propiedades calculadas para la UI
     val formattedDate: String

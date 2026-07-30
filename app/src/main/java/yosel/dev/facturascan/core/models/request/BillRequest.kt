@@ -24,5 +24,6 @@ data class BillRequest(
 
     // Campos adicionales
     val description: String,
-    val imageUrl: String
+    val imageUrl: String,
+    val status: Int
 )
