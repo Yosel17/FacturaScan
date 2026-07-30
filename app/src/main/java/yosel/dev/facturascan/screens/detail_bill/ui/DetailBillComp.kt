@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Badge
 import androidx.compose.material.icons.outlined.BrokenImage
@@ -33,6 +34,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
@@ -44,6 +46,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
@@ -207,7 +211,8 @@ fun BillInputField(
     modifier: Modifier = Modifier,
     singleLine: Boolean = true,
     minLines: Int = 1,
-    maxLines: Int = 1
+    maxLines: Int = 1,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
 ) {
     val clipboard = LocalClipboard.current
     val coroutineScope = rememberCoroutineScope()
@@ -221,7 +226,6 @@ fun BillInputField(
             Icon(
                 imageVector = leadingIcon,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
         },
         trailingIcon = {
@@ -246,9 +250,14 @@ fun BillInputField(
         singleLine = singleLine,
         minLines = minLines,
         maxLines = maxLines,
+        keyboardOptions = keyboardOptions,
         shape = RoundedCornerShape(12.dp),
         modifier = modifier.fillMaxWidth(),
-        textStyle = MaterialTheme.typography.bodyLarge
+        textStyle = MaterialTheme.typography.bodyLarge,
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedLeadingIconColor = MaterialTheme.colorScheme.primary,
+            unfocusedLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     )
 }
 
@@ -260,14 +269,15 @@ fun BillDataForm(
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(10.dp) // Espaciado responsivo consistente entre inputs
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         // 1. Número de Serie
         BillInputField(
             label = "Número de Serie",
             value = formState.serialNumber,
             onValueChange = { onFormStateChange(it, Constants.SERIAL_NUMBER_FIELD) },
-            leadingIcon = Icons.Outlined.Key
+            leadingIcon = Icons.Outlined.Key,
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
         )
 
         // 2. Número de Factura
@@ -275,7 +285,8 @@ fun BillDataForm(
             label = "Número de Factura",
             value = formState.billNumber,
             onValueChange = { onFormStateChange(it, Constants.BILL_NUMBER_FIELD) },
-            leadingIcon = Icons.Outlined.Receipt
+            leadingIcon = Icons.Outlined.Receipt,
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
         )
 
         // 3. Fecha de Emisión
@@ -283,7 +294,11 @@ fun BillDataForm(
             label = "Fecha de Emisión",
             value = formState.issueDate,
             onValueChange = { onFormStateChange(it, Constants.ISSUE_DATE_FIELD) },
-            leadingIcon = Icons.Outlined.CalendarToday
+            leadingIcon = Icons.Outlined.CalendarToday,
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Number,
+                imeAction = ImeAction.Next
+            )
         )
 
         // 4. NIT del Proveedor
@@ -291,7 +306,8 @@ fun BillDataForm(
             label = "NIT del Proveedor",
             value = formState.vendorTaxId,
             onValueChange = { onFormStateChange(it, Constants.VENDOR_TAX_ID_FIELD) },
-            leadingIcon = Icons.Outlined.Badge
+            leadingIcon = Icons.Outlined.Badge,
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
         )
 
         // 5. NIT Organización (Receptor)
@@ -299,26 +315,40 @@ fun BillDataForm(
             label = "NIT Organización (Receptor)",
             value = formState.customerTaxId,
             onValueChange = { onFormStateChange(it, Constants.CUSTOMER_TAX_ID) },
-            leadingIcon = Icons.Outlined.Business
+            leadingIcon = Icons.Outlined.Business,
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
         )
 
-        // 6. Total de la factura
+        // 6. Total de la factura (Numérico/Decimal)
         BillInputField(
             label = "Total de la factura",
             value = formState.totalAmount,
-            onValueChange = { onFormStateChange(it, Constants.TOTAL_AMOUNT_FIELD) },
-            leadingIcon = Icons.Outlined.Payments
+            onValueChange = { newValue ->
+                // Filtro para aceptar solo números y un único punto decimal
+                if (newValue.isEmpty() || newValue.matches(Regex("""^\d*\.?\d*$"""))) {
+                    onFormStateChange(newValue, Constants.TOTAL_AMOUNT_FIELD)
+                }
+            },
+            leadingIcon = Icons.Outlined.Payments,
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Decimal,
+                imeAction = ImeAction.Next
+            )
         )
 
-        // 7. Descripción (Campo multilínea ligeramente más grande)
+        // 7. Descripción (Multilínea, icono arriba y teclado con 'Done')
         BillInputField(
             label = "Descripción",
             value = formState.description,
             onValueChange = { onFormStateChange(it, Constants.DESCRIPTION_FIELD) },
             leadingIcon = Icons.Outlined.Description,
             singleLine = false,
-            minLines = 3,
-            maxLines = 4
+            minLines = 1,
+            maxLines = 4,
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Text,
+                imeAction = ImeAction.Done
+            )
         )
     }
 }
