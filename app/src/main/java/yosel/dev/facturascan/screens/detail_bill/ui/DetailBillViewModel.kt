@@ -35,6 +35,14 @@ class DetailBillViewModel @AssistedInject constructor(
         getBill(idBill = idBill)
     }
 
+    fun onAction(action: DetailBillAction){
+        when(action){
+            DetailBillAction.OnDismissErrorDialog -> {
+                _state.update { it.copy(isError = false, errorMessage = "") }
+            }
+        }
+    }
+
     private fun getBill(idBill: String){
         viewModelScope.launch {
             repository.getBillById(id = idBill)

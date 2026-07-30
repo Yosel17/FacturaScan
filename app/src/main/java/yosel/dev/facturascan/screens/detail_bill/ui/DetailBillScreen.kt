@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import yosel.dev.facturascan.core.components.ErrorDialog
 import yosel.dev.facturascan.core.components.SnackBarError
 import yosel.dev.facturascan.core.components.TopBarGlobal
 
@@ -28,6 +29,7 @@ fun DetailBillScreen(
     modifier: Modifier = Modifier,
     state: DetailBillState,
     snackBarHostState: SnackbarHostState,
+    onAction: (DetailBillAction) -> Unit,
     onBack: () -> Unit
 ) {
     Scaffold(
@@ -95,6 +97,15 @@ fun DetailBillScreen(
                     }
                 }
             }
+        }
+
+        if (state.isError){
+            ErrorDialog(
+                message = state.errorMessage,
+                onDismissRequest = {
+                    onAction(DetailBillAction.OnDismissErrorDialog)
+                }
+            )
         }
     }
 }

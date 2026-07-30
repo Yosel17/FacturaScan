@@ -172,6 +172,9 @@ fun EntryProviderScope<NavKey>.detailBillEntry(
                 .background(MaterialTheme.colorScheme.background),
             state = state,
             snackBarHostState = snackbarHostState,
+            onAction = { action ->
+                viewModel.onAction(action = action)
+            },
             onBack = onBack
         )
 
