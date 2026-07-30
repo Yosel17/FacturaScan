@@ -92,7 +92,8 @@ fun DetailBillScreen(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .padding(horizontal = 24.dp),
-                            state = state
+                            state = state,
+                            onAction = onAction
                         )
                     }
                 }

@@ -1,10 +1,7 @@
 package yosel.dev.facturascan.screens.detail_bill.ui
 
-import android.util.Log
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.toRoute
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -13,9 +10,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import yosel.dev.facturascan.core.navigation.Screens
+import yosel.dev.facturascan.core.utils.Constants
 import yosel.dev.facturascan.screens.detail_bill.domain.DetailBillRepository
-import javax.inject.Inject
 
 @HiltViewModel(assistedFactory = DetailBillViewModel.Factory::class)
 class DetailBillViewModel @AssistedInject constructor(
@@ -40,6 +36,10 @@ class DetailBillViewModel @AssistedInject constructor(
             DetailBillAction.OnDismissErrorDialog -> {
                 _state.update { it.copy(isError = false, errorMessage = "") }
             }
+
+            is DetailBillAction.OnChangeValueFormState -> {
+                onValueFormStateChange(action.value, action.field)
+            }
         }
     }
 
@@ -62,6 +62,18 @@ class DetailBillViewModel @AssistedInject constructor(
                         )
                     }
                 }
+        }
+    }
+
+    private fun onValueFormStateChange(value: String, field: Int){
+        when(field){
+            Constants.SERIAL_NUMBER_FIELD -> _state.update { it.copy(formState = it.formState.copy(serialNumber = value)) }
+            Constants.BILL_NUMBER_FIELD -> _state.update { it.copy(formState = it.formState.copy(billNumber = value)) }
+            Constants.ISSUE_DATE_FIELD -> _state.update { it.copy(formState = it.formState.copy(issueDate = value)) }
+            Constants.VENDOR_TAX_ID_FIELD -> _state.update { it.copy(formState = it.formState.copy(vendorTaxId = value)) }
+            Constants.CUSTOMER_TAX_ID -> _state.update { it.copy(formState = it.formState.copy(customerTaxId = value)) }
+            Constants.TOTAL_AMOUNT_FIELD -> _state.update { it.copy(formState = it.formState.copy(totalAmount = value)) }
+            Constants.DESCRIPTION_FIELD -> _state.update { it.copy(formState = it.formState.copy(description = value)) }
         }
     }
 }

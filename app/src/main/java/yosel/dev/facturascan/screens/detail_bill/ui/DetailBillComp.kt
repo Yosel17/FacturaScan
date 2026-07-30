@@ -1,5 +1,7 @@
 package yosel.dev.facturascan.screens.detail_bill.ui
 
+import android.content.ClipData
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,31 +17,48 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Badge
 import androidx.compose.material.icons.outlined.BrokenImage
+import androidx.compose.material.icons.outlined.Business
+import androidx.compose.material.icons.outlined.CalendarToday
+import androidx.compose.material.icons.outlined.ContentCopy
+import androidx.compose.material.icons.outlined.Description
+import androidx.compose.material.icons.outlined.Key
+import androidx.compose.material.icons.outlined.Payments
+import androidx.compose.material.icons.outlined.Receipt
 import androidx.compose.material.icons.outlined.SearchOff
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
+import kotlinx.coroutines.launch
+import yosel.dev.facturascan.core.utils.Constants
 import yosel.dev.facturascan.ui.theme.FacturaScanTheme
 
 
 @Composable
 fun BodyDetailBill(
     modifier: Modifier = Modifier,
-    state: DetailBillState
+    state: DetailBillState,
+    onAction: (DetailBillAction) -> Unit
 ) {
     LazyColumn(
         modifier = modifier,
@@ -56,6 +75,15 @@ fun BodyDetailBill(
                 "Datos Extraídos",
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onBackground
+            )
+        }
+
+        item {
+            BillDataForm(
+                formState = state.formState,
+                onFormStateChange = { value, field ->
+                    onAction(DetailBillAction.OnChangeValueFormState(value, field))
+                }
             )
         }
     }
@@ -166,6 +194,131 @@ fun EmptyBillDetailsState(
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
+        )
+    }
+}
+
+@Composable
+fun BillInputField(
+    label: String,
+    value: String,
+    onValueChange: (String) -> Unit,
+    leadingIcon: ImageVector,
+    modifier: Modifier = Modifier,
+    singleLine: Boolean = true,
+    minLines: Int = 1,
+    maxLines: Int = 1
+) {
+    val clipboard = LocalClipboard.current
+    val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
+
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        label = { Text(text = label) },
+        leadingIcon = {
+            Icon(
+                imageVector = leadingIcon,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        },
+        trailingIcon = {
+            if (value.isNotEmpty()) {
+                IconButton(
+                    onClick = {
+                        coroutineScope.launch {
+                            val clipData = ClipData.newPlainText(label, value)
+                            clipboard.setClipEntry(ClipEntry(clipData))
+                            Toast.makeText(context, "$label copiado", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.ContentCopy,
+                        contentDescription = "Copiar $label",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        },
+        singleLine = singleLine,
+        minLines = minLines,
+        maxLines = maxLines,
+        shape = RoundedCornerShape(12.dp),
+        modifier = modifier.fillMaxWidth(),
+        textStyle = MaterialTheme.typography.bodyLarge
+    )
+}
+
+@Composable
+fun BillDataForm(
+    formState: DetailBillFormState,
+    onFormStateChange: (String, Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(10.dp) // Espaciado responsivo consistente entre inputs
+    ) {
+        // 1. Número de Serie
+        BillInputField(
+            label = "Número de Serie",
+            value = formState.serialNumber,
+            onValueChange = { onFormStateChange(it, Constants.SERIAL_NUMBER_FIELD) },
+            leadingIcon = Icons.Outlined.Key
+        )
+
+        // 2. Número de Factura
+        BillInputField(
+            label = "Número de Factura",
+            value = formState.billNumber,
+            onValueChange = { onFormStateChange(it, Constants.BILL_NUMBER_FIELD) },
+            leadingIcon = Icons.Outlined.Receipt
+        )
+
+        // 3. Fecha de Emisión
+        BillInputField(
+            label = "Fecha de Emisión",
+            value = formState.issueDate,
+            onValueChange = { onFormStateChange(it, Constants.ISSUE_DATE_FIELD) },
+            leadingIcon = Icons.Outlined.CalendarToday
+        )
+
+        // 4. NIT del Proveedor
+        BillInputField(
+            label = "NIT del Proveedor",
+            value = formState.vendorTaxId,
+            onValueChange = { onFormStateChange(it, Constants.VENDOR_TAX_ID_FIELD) },
+            leadingIcon = Icons.Outlined.Badge
+        )
+
+        // 5. NIT Organización (Receptor)
+        BillInputField(
+            label = "NIT Organización (Receptor)",
+            value = formState.customerTaxId,
+            onValueChange = { onFormStateChange(it, Constants.CUSTOMER_TAX_ID) },
+            leadingIcon = Icons.Outlined.Business
+        )
+
+        // 6. Total de la factura
+        BillInputField(
+            label = "Total de la factura",
+            value = formState.totalAmount,
+            onValueChange = { onFormStateChange(it, Constants.TOTAL_AMOUNT_FIELD) },
+            leadingIcon = Icons.Outlined.Payments
+        )
+
+        // 7. Descripción (Campo multilínea ligeramente más grande)
+        BillInputField(
+            label = "Descripción",
+            value = formState.description,
+            onValueChange = { onFormStateChange(it, Constants.DESCRIPTION_FIELD) },
+            leadingIcon = Icons.Outlined.Description,
+            singleLine = false,
+            minLines = 3,
+            maxLines = 4
         )
     }
 }
