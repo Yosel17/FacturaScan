@@ -16,4 +16,7 @@ interface BillDao {
 
     @Query("SELECT * FROM bills ORDER BY createdAt DESC")
     fun getAllBills(): Flow<List<BillEntity>>
+
+    @Upsert
+    suspend fun upsertBills(bills: List<BillEntity>)
 }
