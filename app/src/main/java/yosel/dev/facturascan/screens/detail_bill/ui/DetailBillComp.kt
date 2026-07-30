@@ -1,41 +1,169 @@
 package yosel.dev.facturascan.screens.detail_bill.ui
 
+import android.content.ClipData
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Badge
+import androidx.compose.material.icons.outlined.BrokenImage
+import androidx.compose.material.icons.outlined.Business
+import androidx.compose.material.icons.outlined.CalendarToday
+import androidx.compose.material.icons.outlined.ContentCopy
+import androidx.compose.material.icons.outlined.Description
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Key
+import androidx.compose.material.icons.outlined.Payments
+import androidx.compose.material.icons.outlined.Receipt
 import androidx.compose.material.icons.outlined.SearchOff
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.LocalClipboard
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
+import coil.compose.SubcomposeAsyncImage
+import coil.request.ImageRequest
+import kotlinx.coroutines.launch
+import yosel.dev.facturascan.core.utils.Constants
 import yosel.dev.facturascan.ui.theme.FacturaScanTheme
 
 
 @Composable
 fun BodyDetailBill(
     modifier: Modifier = Modifier,
-    state: DetailBillState
+    state: DetailBillState,
+    onAction: (DetailBillAction) -> Unit
 ) {
     LazyColumn(
-        modifier = modifier
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(32.dp)
     ) {
+        item {
+            InvoiceImageHeader(
+                imageUri = state.currentBill.imageUrl
+            )
+        }
 
+        item {
+            BillDataForm(
+                formState = state.formState,
+                onFormStateChange = { value, field ->
+                    onAction(DetailBillAction.OnChangeValueFormState(value, field))
+                }
+            )
+        }
+
+        item {
+            DataReviewAlertCard()
+        }
+
+        item {
+            BillActionButtons(
+                onCopyAllClick = {  },
+                onSaveToHistoryClick = {  }
+            )
+        }
     }
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+fun InvoiceImageHeader(
+    imageUri: String?,
+    modifier: Modifier = Modifier
+) {
+    // Definimos el contenedor redondeado según la interfaz de usuario de la imagen
+    val imageShape = RoundedCornerShape(16.dp)
+
+    SubcomposeAsyncImage(
+        model = ImageRequest.Builder(LocalContext.current)
+            .data(imageUri)
+            .crossfade(true)
+            .build(),
+        contentDescription = "Vista previa de la factura",
+        contentScale = ContentScale.Crop,
+        modifier = modifier
+            .fillMaxWidth()
+            .aspectRatio(16f / 10f) // Mantiene la relación de aspecto responsiva alineada a la UI
+            .clip(imageShape)
+            .background(MaterialTheme.colorScheme.surfaceVariant),
+        loading = {
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                LoadingIndicator(
+                    modifier = Modifier.size(32.dp),
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+        },
+        error = {
+            // Estado de fallback cuando la URI no existe, expiró o no se pudo cargar
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                androidx.compose.foundation.layout.Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.BrokenImage,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.size(48.dp)
+                    )
+                    Text(
+                        text = "Error al cargar la imagen", // p. ej. "No se pudo cargar la imagen"
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+                }
+            }
+        }
+    )
 }
 @Composable
 fun EmptyBillDetailsState(
@@ -86,10 +214,282 @@ fun EmptyBillDetailsState(
     }
 }
 
+@Composable
+fun BillInputField(
+    label: String,
+    value: String,
+    onValueChange: (String) -> Unit,
+    leadingIcon: ImageVector,
+    modifier: Modifier = Modifier,
+    singleLine: Boolean = true,
+    minLines: Int = 1,
+    maxLines: Int = 1,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+) {
+    val clipboard = LocalClipboard.current
+    val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
+
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        label = { Text(text = label) },
+        leadingIcon = {
+            Icon(
+                imageVector = leadingIcon,
+                contentDescription = null,
+            )
+        },
+        trailingIcon = {
+            if (value.isNotEmpty()) {
+                IconButton(
+                    onClick = {
+                        coroutineScope.launch {
+                            val clipData = ClipData.newPlainText(label, value)
+                            clipboard.setClipEntry(ClipEntry(clipData))
+                            Toast.makeText(context, "$label copiado", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.ContentCopy,
+                        contentDescription = "Copiar $label",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        },
+        singleLine = singleLine,
+        minLines = minLines,
+        maxLines = maxLines,
+        keyboardOptions = keyboardOptions,
+        shape = RoundedCornerShape(12.dp),
+        modifier = modifier.fillMaxWidth(),
+        textStyle = MaterialTheme.typography.bodyLarge,
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedLeadingIconColor = MaterialTheme.colorScheme.primary,
+            unfocusedLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    )
+}
+
+@Composable
+fun BillDataForm(
+    formState: DetailBillFormState,
+    onFormStateChange: (String, Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+
+        Text(
+            "Datos Extraídos",
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onBackground
+        )
+        // 1. Número de Serie
+        BillInputField(
+            label = "Número de Serie",
+            value = formState.serialNumber,
+            onValueChange = { onFormStateChange(it, Constants.SERIAL_NUMBER_FIELD) },
+            leadingIcon = Icons.Outlined.Key,
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
+        )
+
+        // 2. Número de Factura
+        BillInputField(
+            label = "Número de Factura",
+            value = formState.billNumber,
+            onValueChange = { onFormStateChange(it, Constants.BILL_NUMBER_FIELD) },
+            leadingIcon = Icons.Outlined.Receipt,
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
+        )
+
+        // 3. Fecha de Emisión
+        BillInputField(
+            label = "Fecha de Emisión",
+            value = formState.issueDate,
+            onValueChange = { onFormStateChange(it, Constants.ISSUE_DATE_FIELD) },
+            leadingIcon = Icons.Outlined.CalendarToday,
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Number,
+                imeAction = ImeAction.Next
+            )
+        )
+
+        // 4. NIT del Proveedor
+        BillInputField(
+            label = "NIT del Proveedor",
+            value = formState.vendorTaxId,
+            onValueChange = { onFormStateChange(it, Constants.VENDOR_TAX_ID_FIELD) },
+            leadingIcon = Icons.Outlined.Badge,
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
+        )
+
+        // 5. NIT Organización (Receptor)
+        BillInputField(
+            label = "NIT Organización (Receptor)",
+            value = formState.customerTaxId,
+            onValueChange = { onFormStateChange(it, Constants.CUSTOMER_TAX_ID) },
+            leadingIcon = Icons.Outlined.Business,
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
+        )
+
+        // 6. Total de la factura (Numérico/Decimal)
+        BillInputField(
+            label = "Total de la factura",
+            value = formState.totalAmount,
+            onValueChange = { newValue ->
+                // Filtro para aceptar solo números y un único punto decimal
+                if (newValue.isEmpty() || newValue.matches(Regex("""^\d*\.?\d*$"""))) {
+                    onFormStateChange(newValue, Constants.TOTAL_AMOUNT_FIELD)
+                }
+            },
+            leadingIcon = Icons.Outlined.Payments,
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Decimal,
+                imeAction = ImeAction.Next
+            )
+        )
+
+        // 7. Descripción (Multilínea, icono arriba y teclado con 'Done')
+        BillInputField(
+            label = "Descripción",
+            value = formState.description,
+            onValueChange = { onFormStateChange(it, Constants.DESCRIPTION_FIELD) },
+            leadingIcon = Icons.Outlined.Description,
+            singleLine = false,
+            minLines = 1,
+            maxLines = 4,
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Text,
+                imeAction = ImeAction.Done
+            )
+        )
+    }
+}
+
+@Composable
+fun DataReviewAlertCard(
+    modifier: Modifier = Modifier,
+    icon: ImageVector = Icons.Outlined.Info,
+    title: String = "¡Revisa los datos!",
+    description: String = "Por favor, revise que los datos coincidan con el documento físico antes de guardar."
+) {
+
+    Card(
+        modifier = modifier
+            .fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+            contentColor = MaterialTheme.colorScheme.onTertiaryContainer
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.Top,
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+
+            Icon(
+                imageVector = icon,
+                contentDescription = "Icono de aviso",
+                tint = MaterialTheme.colorScheme.onTertiaryContainer,
+                modifier = Modifier
+                    .size(24.dp)
+                    .padding(top = 2.dp)
+            )
+
+
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onTertiaryContainer
+                )
+
+                Text(
+                    text = description,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.8f),
+                    textAlign = TextAlign.Start
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun BillActionButtons(
+    onCopyAllClick: () -> Unit,
+    onSaveToHistoryClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true
+) {
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Button(
+            onClick = onCopyAllClick,
+            enabled = enabled,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(52.dp),
+            shape = MaterialTheme.shapes.medium
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.ContentCopy,
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "Copiar todo",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+
+        OutlinedButton(
+            onClick = onSaveToHistoryClick,
+            enabled = enabled,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(52.dp),
+            shape = MaterialTheme.shapes.medium
+        ) {
+            Text(
+                text = "Guardar en la nube",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
+    }
+}
+
 @PreviewLightDark
 @Composable
 private fun Preview() {
     FacturaScanTheme {
-        EmptyBillDetailsState()
+        Scaffold { innerPadding ->
+            Column(modifier = Modifier.padding(innerPadding)) {
+                DataReviewAlertCard()
+            }
+        }
     }
 }

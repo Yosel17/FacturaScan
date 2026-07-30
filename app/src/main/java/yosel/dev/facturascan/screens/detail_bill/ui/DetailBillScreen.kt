@@ -1,8 +1,11 @@
 package yosel.dev.facturascan.screens.detail_bill.ui
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -18,10 +21,13 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import yosel.dev.facturascan.core.components.ErrorDialog
 import yosel.dev.facturascan.core.components.SnackBarError
 import yosel.dev.facturascan.core.components.TopBarGlobal
+import yosel.dev.facturascan.core.models.model.BillModel
+import yosel.dev.facturascan.ui.theme.FacturaScanTheme
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -64,6 +70,8 @@ fun DetailBillScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
+                .consumeWindowInsets(paddingValues)
+                .imePadding()
         ){
             AnimatedContent(
                 targetState = state,
@@ -92,7 +100,8 @@ fun DetailBillScreen(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .padding(horizontal = 24.dp),
-                            state = state
+                            state = state,
+                            onAction = onAction
                         )
                     }
                 }
@@ -107,5 +116,24 @@ fun DetailBillScreen(
                 }
             )
         }
+    }
+}
+
+@PreviewLightDark
+@Composable
+private fun Preview() {
+    FacturaScanTheme {
+        DetailBillScreen(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+            state = DetailBillState(
+                isLoading = false,
+                currentBill = BillModel(id = "adfkjasdfkas")
+            ),
+            snackBarHostState = SnackbarHostState(),
+            onAction = {},
+            onBack = {}
+        )
     }
 }

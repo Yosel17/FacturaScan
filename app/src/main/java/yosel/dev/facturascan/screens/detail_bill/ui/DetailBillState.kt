@@ -6,5 +6,6 @@ data class DetailBillState(
     val isLoading: Boolean = true,
     val isError: Boolean = false,
     val errorMessage: String = "",
-    val currentBill: BillModel = BillModel()
+    val currentBill: BillModel = BillModel(),
+    val formState: DetailBillFormState = DetailBillFormState()
 )
