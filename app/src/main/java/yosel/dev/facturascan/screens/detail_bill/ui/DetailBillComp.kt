@@ -42,11 +42,20 @@ fun BodyDetailBill(
     state: DetailBillState
 ) {
     LazyColumn(
-        modifier = modifier
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         item {
             InvoiceImageHeader(
                 imageUri = state.currentBill.imageUrl
+            )
+        }
+
+        item {
+            Text(
+                "Datos Extraídos",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onBackground
             )
         }
     }
@@ -165,6 +174,10 @@ fun EmptyBillDetailsState(
 @Composable
 private fun Preview() {
     FacturaScanTheme {
-        EmptyBillDetailsState()
+        Text(
+            "Datos Extraídos",
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.onBackground
+        )
     }
 }
