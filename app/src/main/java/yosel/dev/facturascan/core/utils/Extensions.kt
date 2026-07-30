@@ -13,8 +13,10 @@ import yosel.dev.facturascan.core.models.request.BillRequest
 import yosel.dev.facturascan.core.models.response.BillResponse
 import yosel.dev.facturascan.core.room.tables.bill.BillEntity
 import java.io.File
+import java.lang.System
 import java.text.DecimalFormat
 import java.time.Instant
+import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -35,6 +37,21 @@ fun BillResponse.toModel(): BillModel{
         imageUrl = imageUrl
     )
 }
+
+fun BillResponse.toEntity(): BillEntity = BillEntity(
+    id = id,
+    createdAt = createdAt?.time ?: System.currentTimeMillis() ,
+    companyName = companyName,
+    vendorTaxId = vendorTaxId,
+    customerTaxId = customerTaxId,
+    invoiceNumber = invoiceNumber,
+    serialNumber = serialNumber,
+    authorizationNumber = authorizationNumber,
+    issueDate = issueDate,
+    totalAmount = totalAmount,
+    description = description,
+    imageUrl = imageUrl
+)
 
 fun BillAiResponse.toModel(imageUrl: String = ""): BillModel {
     return BillModel(
