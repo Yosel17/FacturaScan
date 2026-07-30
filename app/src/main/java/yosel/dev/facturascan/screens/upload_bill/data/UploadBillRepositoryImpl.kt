@@ -2,6 +2,7 @@ package yosel.dev.facturascan.screens.upload_bill.data
 
 import android.content.Context
 import android.net.Uri
+import androidx.core.net.toUri
 import com.google.firebase.ai.GenerativeModel
 import com.google.firebase.ai.type.content
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -12,6 +13,7 @@ import yosel.dev.facturascan.core.data_source.BillsDataSource
 import yosel.dev.facturascan.core.models.ai.BillAiResponse
 import yosel.dev.facturascan.core.models.model.BillModel
 import yosel.dev.facturascan.core.room.tables.bill.BillDao
+import yosel.dev.facturascan.core.utils.saveImageToInternalStorage
 import yosel.dev.facturascan.core.utils.toEntity
 import yosel.dev.facturascan.core.utils.toModel
 import yosel.dev.facturascan.core.utils.toRequest
@@ -79,12 +81,19 @@ class UploadBillRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun saveBillRoom(bill: BillModel): Result<Unit> {
+    override suspend fun saveBillRoom(bill: BillModel): Result<String> {
         return withContext(Dispatchers.IO) {
             try {
-                val billEntity = bill.toEntity()
+                val tempUri = bill.imageUrl.toUri()
+                val persistentUriString = saveImageToInternalStorage(context = context, uri = tempUri, fileName = bill.id)
+                    ?: bill.imageUrl
+
+                val updatedBill = bill.copy(imageUrl = persistentUriString)
+
+                val billEntity = updatedBill.toEntity()
                 billDao.upsertBill(bill = billEntity)
-                Result.success(Unit)
+
+                Result.success(persistentUriString)
             } catch (e: Exception) {
                 Result.failure(exception = e)
             }

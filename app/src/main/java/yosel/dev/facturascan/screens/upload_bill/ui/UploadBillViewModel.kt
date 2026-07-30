@@ -98,8 +98,9 @@ class UploadBillViewModel @Inject constructor(
 
     private suspend fun saveBillRoom(bill: BillModel){
         repository.saveBillRoom(bill = bill)
-            .onSuccess {
-                saveBillFirestore(bill = bill)
+            .onSuccess { imageUrl ->
+                val updatedBill = bill.copy(imageUrl = imageUrl)
+                saveBillFirestore(bill = updatedBill)
             }.onFailure { error ->
                 _state.update {
                     it.copy(isLoading = false)
