@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,10 +25,13 @@ import androidx.compose.material.icons.outlined.Business
 import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material.icons.outlined.ContentCopy
 import androidx.compose.material.icons.outlined.Description
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Key
 import androidx.compose.material.icons.outlined.Payments
 import androidx.compose.material.icons.outlined.Receipt
 import androidx.compose.material.icons.outlined.SearchOff
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -35,6 +39,7 @@ import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
@@ -89,6 +94,10 @@ fun BodyDetailBill(
                     onAction(DetailBillAction.OnChangeValueFormState(value, field))
                 }
             )
+        }
+
+        item {
+            DataReviewAlertCard()
         }
     }
 }
@@ -353,14 +362,71 @@ fun BillDataForm(
     }
 }
 
+@Composable
+fun DataReviewAlertCard(
+    modifier: Modifier = Modifier,
+    icon: ImageVector = Icons.Outlined.Info,
+    title: String = "¡Revisa los datos!",
+    description: String = "Por favor, revise que los datos coincidan con el documento físico antes de guardar."
+) {
+
+    Card(
+        modifier = modifier
+            .fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+            contentColor = MaterialTheme.colorScheme.onTertiaryContainer
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.Top,
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+
+            Icon(
+                imageVector = icon,
+                contentDescription = "Icono de aviso",
+                tint = MaterialTheme.colorScheme.onTertiaryContainer,
+                modifier = Modifier
+                    .size(24.dp)
+                    .padding(top = 2.dp)
+            )
+
+
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onTertiaryContainer
+                )
+
+                Text(
+                    text = description,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.8f),
+                    textAlign = TextAlign.Start
+                )
+            }
+        }
+    }
+}
+
 @PreviewLightDark
 @Composable
 private fun Preview() {
     FacturaScanTheme {
-        Text(
-            "Datos Extraídos",
-            style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.onBackground
-        )
+        Scaffold { innerPadding ->
+            Column(modifier = Modifier.padding(innerPadding)) {
+                DataReviewAlertCard()
+            }
+        }
     }
 }
