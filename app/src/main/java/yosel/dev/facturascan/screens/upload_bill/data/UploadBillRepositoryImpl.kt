@@ -39,7 +39,16 @@ class UploadBillRepositoryImpl @Inject constructor(
 
                 // 🚀 El prompt ahora solo dicta la estructura, las reglas ya están en AIModule
                 val prompt = """
-                    Extrae la información de esta factura en el siguiente formato JSON:
+                    Extrae la información de esta factura en el siguiente formato JSON estricto.
+
+                    Reglas para el campo "issue_date":
+                    - Debe ser en español y en minúsculas.
+                    - Día a 2 dígitos (ej: 07 o 30).
+                    - Mes abreviado a 3 letras sin punto al final (ej: ene, feb, mar, abr, may, jun, jul, ago, sep, oct, nov, dic).
+                    - Año a 4 dígitos.
+                    - Ejemplo válido: "30 jul 2026", "07 ago 2026".
+                    
+                    Estructura JSON:
                     {
                       "company_name": "Nombre de la empresa o emisor",
                       "vendor_tax_id": "NIT o RUC del emisor",
@@ -47,8 +56,8 @@ class UploadBillRepositoryImpl @Inject constructor(
                       "invoice_number": "Número de factura",
                       "serial_number": "Serie de la factura",
                       "authorization_number": "Número de autorización / DTE",
-                      "issue_date": "Fecha de emisión (YYYY-MM-DD)",
-                      "total_amount": 0.0,
+                      "issue_date": "Fecha de emision ejemplo 30 jul 2026",
+                      "total_amount": 0.0
                     }
                 """.trimIndent()
 

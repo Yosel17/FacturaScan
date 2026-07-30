@@ -3,6 +3,8 @@ package yosel.dev.facturascan.screens.detail_bill.ui
 import android.content.ClipData
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,6 +36,8 @@ import androidx.compose.material.icons.outlined.SearchOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -44,8 +48,15 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -64,6 +75,8 @@ import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
 import kotlinx.coroutines.launch
 import yosel.dev.facturascan.core.utils.Constants
+import yosel.dev.facturascan.core.utils.parseIssueDateToMillis
+import yosel.dev.facturascan.core.utils.toFormattedIssueDate
 import yosel.dev.facturascan.ui.theme.FacturaScanTheme
 
 
@@ -224,53 +237,105 @@ fun BillInputField(
     singleLine: Boolean = true,
     minLines: Int = 1,
     maxLines: Int = 1,
+    readOnly: Boolean = false,
+    onClick: (() -> Unit)? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
 ) {
     val clipboard = LocalClipboard.current
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
 
-    OutlinedTextField(
-        value = value,
-        onValueChange = onValueChange,
-        label = { Text(text = label) },
-        leadingIcon = {
-            Icon(
-                imageVector = leadingIcon,
-                contentDescription = null,
-            )
-        },
-        trailingIcon = {
-            if (value.isNotEmpty()) {
-                IconButton(
-                    onClick = {
-                        coroutineScope.launch {
-                            val clipData = ClipData.newPlainText(label, value)
-                            clipboard.setClipEntry(ClipEntry(clipData))
-                            Toast.makeText(context, "$label copiado", Toast.LENGTH_SHORT).show()
+    Box(modifier = modifier.fillMaxWidth()) {
+        OutlinedTextField(
+            value = value,
+            onValueChange = onValueChange,
+            label = { Text(text = label) },
+            leadingIcon = {
+                Icon(
+                    imageVector = leadingIcon,
+                    contentDescription = null,
+                )
+            },
+            trailingIcon = {
+                if (value.isNotEmpty()) {
+                    IconButton(
+                        onClick = {
+                            coroutineScope.launch {
+                                val clipData = ClipData.newPlainText(label, value)
+                                clipboard.setClipEntry(ClipEntry(clipData))
+                                Toast.makeText(context, "$label copiado", Toast.LENGTH_SHORT).show()
+                            }
                         }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.ContentCopy,
+                            contentDescription = "Copiar $label",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
-                ) {
-                    Icon(
-                        imageVector = Icons.Outlined.ContentCopy,
-                        contentDescription = "Copiar $label",
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
                 }
+            },
+            readOnly = readOnly,
+            singleLine = singleLine,
+            minLines = minLines,
+            maxLines = maxLines,
+            keyboardOptions = keyboardOptions,
+            shape = RoundedCornerShape(12.dp),
+            modifier = Modifier.fillMaxWidth(),
+            textStyle = MaterialTheme.typography.bodyLarge,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedLeadingIconColor = MaterialTheme.colorScheme.primary,
+                unfocusedLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        )
+
+        // Overlay transparente para capturar el click cuando el campo es de solo lectura
+        if (readOnly && onClick != null) {
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                        onClick = onClick
+                    )
+            )
+        }
+    }
+}
+
+@Composable
+fun BillDatePickerDialog(
+    initialDateMillis: Long?,
+    onDateSelected: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val datePickerState = rememberDatePickerState(
+        initialSelectedDateMillis = initialDateMillis ?: System.currentTimeMillis()
+    )
+
+    DatePickerDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    datePickerState.selectedDateMillis?.let { millis ->
+                        onDateSelected(millis.toFormattedIssueDate())
+                    }
+                    onDismiss()
+                }
+            ) {
+                Text("Aceptar")
             }
         },
-        singleLine = singleLine,
-        minLines = minLines,
-        maxLines = maxLines,
-        keyboardOptions = keyboardOptions,
-        shape = RoundedCornerShape(12.dp),
-        modifier = modifier.fillMaxWidth(),
-        textStyle = MaterialTheme.typography.bodyLarge,
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedLeadingIconColor = MaterialTheme.colorScheme.primary,
-            unfocusedLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-    )
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancelar")
+            }
+        }
+    ) {
+        DatePicker(state = datePickerState)
+    }
 }
 
 @Composable
@@ -279,16 +344,18 @@ fun BillDataForm(
     onFormStateChange: (String, Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var showDatePicker by rememberSaveable { mutableStateOf(false) }
+
     Column(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-
         Text(
             "Datos Extraídos",
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onBackground
         )
+
         // 1. Número de Serie
         BillInputField(
             label = "Número de Serie",
@@ -307,16 +374,14 @@ fun BillDataForm(
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
         )
 
-        // 3. Fecha de Emisión
+        // 3. Fecha de Emisión (Solo Lectura + DatePicker)
         BillInputField(
             label = "Fecha de Emisión",
             value = formState.issueDate,
             onValueChange = { onFormStateChange(it, Constants.ISSUE_DATE_FIELD) },
             leadingIcon = Icons.Outlined.CalendarToday,
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Number,
-                imeAction = ImeAction.Next
-            )
+            readOnly = true,
+            onClick = { showDatePicker = true }
         )
 
         // 4. NIT del Proveedor
@@ -337,12 +402,11 @@ fun BillDataForm(
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
         )
 
-        // 6. Total de la factura (Numérico/Decimal)
+        // 6. Total de la factura
         BillInputField(
             label = "Total de la factura",
             value = formState.totalAmount,
             onValueChange = { newValue ->
-                // Filtro para aceptar solo números y un único punto decimal
                 if (newValue.isEmpty() || newValue.matches(Regex("""^\d*\.?\d*$"""))) {
                     onFormStateChange(newValue, Constants.TOTAL_AMOUNT_FIELD)
                 }
@@ -354,7 +418,7 @@ fun BillDataForm(
             )
         )
 
-        // 7. Descripción (Multilínea, icono arriba y teclado con 'Done')
+        // 7. Descripción
         BillInputField(
             label = "Descripción",
             value = formState.description,
@@ -367,6 +431,21 @@ fun BillDataForm(
                 keyboardType = KeyboardType.Text,
                 imeAction = ImeAction.Done
             )
+        )
+    }
+
+    // Modal del calendario
+    if (showDatePicker) {
+        val initialMillis = remember(formState.issueDate) {
+            formState.issueDate.parseIssueDateToMillis()
+        }
+
+        BillDatePickerDialog(
+            initialDateMillis = initialMillis,
+            onDateSelected = { formattedDate ->
+                onFormStateChange(formattedDate, Constants.ISSUE_DATE_FIELD)
+            },
+            onDismiss = { showDatePicker = false }
         )
     }
 }
