@@ -12,5 +12,5 @@ sealed interface Screens: NavKey {
     data object UploadBill: Screens
 
     @Serializable
-    data object DetailBill: Screens
+    data class DetailBill(val idBill: String): Screens
 }
