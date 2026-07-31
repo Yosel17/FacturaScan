@@ -11,4 +11,6 @@ sealed interface DetailBillAction {
     data object OnDismissDeleteDialog: DetailBillAction
 
     data object ConfirmDelete: DetailBillAction
+
+    data class OnCopyFieldClick(val label: String, val value: String) : DetailBillAction
 }

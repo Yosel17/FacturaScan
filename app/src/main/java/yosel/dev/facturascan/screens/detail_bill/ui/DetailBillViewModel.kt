@@ -57,6 +57,10 @@ class DetailBillViewModel @AssistedInject constructor(
             DetailBillAction.OnDismissDeleteDialog -> {
                 _state.update { it.copy(showDialogDelete = false, warningMessage = "") }
             }
+
+            is DetailBillAction.OnCopyFieldClick -> {
+                copyFieldToClipboard(action.label, action.value)
+            }
         }
     }
 
@@ -166,5 +170,14 @@ class DetailBillViewModel @AssistedInject constructor(
                     )
                 )
             }
+    }
+
+    private fun copyFieldToClipboard(label: String, value: String) {
+        if (value.isBlank()) return
+        viewModelScope.launch {
+            _eventChannel.send(
+                DetailBillEvent.ShowSuccessSnackbar("$label copiado al portapapeles")
+            )
+        }
     }
 }

@@ -1,7 +1,6 @@
 package yosel.dev.facturascan.screens.detail_bill.ui
 
 import android.content.ClipData
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -101,6 +100,9 @@ fun BodyDetailBill(
                 formState = state.formState,
                 onFormStateChange = { value, field ->
                     onAction(DetailBillAction.OnChangeValueFormState(value, field))
+                },
+                onCopyClick = { label, value ->
+                    onAction(DetailBillAction.OnCopyFieldClick(label, value))
                 }
             )
         }
@@ -233,6 +235,7 @@ fun BillInputField(
     value: String,
     onValueChange: (String) -> Unit,
     leadingIcon: ImageVector,
+    onCopyClick: (label: String, value: String) -> Unit,
     modifier: Modifier = Modifier,
     singleLine: Boolean = true,
     minLines: Int = 1,
@@ -243,7 +246,6 @@ fun BillInputField(
 ) {
     val clipboard = LocalClipboard.current
     val coroutineScope = rememberCoroutineScope()
-    val context = LocalContext.current
 
     Box(modifier = modifier.fillMaxWidth()) {
         OutlinedTextField(
@@ -263,7 +265,7 @@ fun BillInputField(
                             coroutineScope.launch {
                                 val clipData = ClipData.newPlainText(label, value)
                                 clipboard.setClipEntry(ClipEntry(clipData))
-                                Toast.makeText(context, "$label copiado", Toast.LENGTH_SHORT).show()
+                                onCopyClick(label, value)
                             }
                         }
                     ) {
@@ -342,6 +344,7 @@ fun BillDatePickerDialog(
 fun BillDataForm(
     formState: DetailBillFormState,
     onFormStateChange: (String, Int) -> Unit,
+    onCopyClick: (String, String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var showDatePicker by rememberSaveable { mutableStateOf(false) }
@@ -362,7 +365,8 @@ fun BillDataForm(
             value = formState.serialNumber,
             onValueChange = { onFormStateChange(it, Constants.SERIAL_NUMBER_FIELD) },
             leadingIcon = Icons.Outlined.Key,
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+            onCopyClick = onCopyClick,
         )
 
         // 2. Número de Factura
@@ -371,7 +375,8 @@ fun BillDataForm(
             value = formState.billNumber,
             onValueChange = { onFormStateChange(it, Constants.BILL_NUMBER_FIELD) },
             leadingIcon = Icons.Outlined.Receipt,
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+            onCopyClick = onCopyClick,
         )
 
         // 3. Fecha de Emisión (Solo Lectura + DatePicker)
@@ -381,7 +386,8 @@ fun BillDataForm(
             onValueChange = { onFormStateChange(it, Constants.ISSUE_DATE_FIELD) },
             leadingIcon = Icons.Outlined.CalendarToday,
             readOnly = true,
-            onClick = { showDatePicker = true }
+            onClick = { showDatePicker = true },
+            onCopyClick = onCopyClick,
         )
 
         // 4. NIT del Proveedor
@@ -390,7 +396,8 @@ fun BillDataForm(
             value = formState.vendorTaxId,
             onValueChange = { onFormStateChange(it, Constants.VENDOR_TAX_ID_FIELD) },
             leadingIcon = Icons.Outlined.Badge,
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+            onCopyClick = onCopyClick,
         )
 
         // 5. NIT Organización (Receptor)
@@ -399,7 +406,8 @@ fun BillDataForm(
             value = formState.customerTaxId,
             onValueChange = { onFormStateChange(it, Constants.CUSTOMER_TAX_ID) },
             leadingIcon = Icons.Outlined.Business,
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+            onCopyClick = onCopyClick,
         )
 
         // 6. Total de la factura
@@ -415,7 +423,8 @@ fun BillDataForm(
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Decimal,
                 imeAction = ImeAction.Next
-            )
+            ),
+            onCopyClick = onCopyClick,
         )
 
         // 7. Descripción
@@ -430,7 +439,8 @@ fun BillDataForm(
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Text,
                 imeAction = ImeAction.Done
-            )
+            ),
+            onCopyClick = onCopyClick,
         )
     }
 
