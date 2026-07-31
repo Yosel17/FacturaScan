@@ -11,5 +11,6 @@ data class DetailBillState(
     val showDialogDelete: Boolean = false,
     val warningMessage: String = "",
     val isLoadingDeleteBill: Boolean = false,
-    val isLoadingSaveBill: Boolean = false
+    val isLoadingSaveBill: Boolean = false,
+    val isLoadingUpdateBill: Boolean = false
 )

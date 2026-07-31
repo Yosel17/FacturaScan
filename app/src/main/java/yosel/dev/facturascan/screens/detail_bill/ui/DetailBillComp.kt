@@ -139,7 +139,9 @@ fun BodyDetailBill(
                 onSaveToHistoryClick = {
                     onAction(DetailBillAction.SaveBill)
                 },
-                onEditClick = {}
+                onEditClick = {
+                    onAction(DetailBillAction.UpdateBill)
+                }
             )
         }
     }
@@ -542,7 +544,7 @@ fun BillActionButtons(
     billStatus: Int
 ) {
     Column(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth().padding(bottom = 48.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
 

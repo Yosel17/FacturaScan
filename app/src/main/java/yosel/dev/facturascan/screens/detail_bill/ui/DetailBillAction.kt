@@ -17,4 +17,6 @@ sealed interface DetailBillAction {
     data object OnCopyAllClick : DetailBillAction
 
     data object SaveBill: DetailBillAction
+
+    data object UpdateBill: DetailBillAction
 }
