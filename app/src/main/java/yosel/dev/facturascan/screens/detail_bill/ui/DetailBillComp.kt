@@ -22,6 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Cloud
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.outlined.Badge
 import androidx.compose.material.icons.outlined.BrokenImage
 import androidx.compose.material.icons.outlined.Business
@@ -113,12 +114,16 @@ fun BodyDetailBill(
             )
         }
 
-        item {
-            DataReviewAlertCard()
+        if (state.currentBill.status == Constants.DRAFT_STATUS){
+            item {
+                DataReviewAlertCard()
+            }
+
         }
 
         item {
             BillActionButtons(
+                billStatus = state.currentBill.status,
                 onCopyAllClick = {
                     val textToCopy = state.formState.formattedCopyText
 
@@ -131,7 +136,8 @@ fun BodyDetailBill(
 
                     }
                 },
-                onSaveToHistoryClick = { }
+                onSaveToHistoryClick = { },
+                onEditClick = {}
             )
         }
     }
@@ -528,8 +534,10 @@ fun DataReviewAlertCard(
 fun BillActionButtons(
     onCopyAllClick: () -> Unit,
     onSaveToHistoryClick: () -> Unit,
+    onEditClick: () -> Unit,
     modifier: Modifier = Modifier,
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    billStatus: Int
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
@@ -557,31 +565,60 @@ fun BillActionButtons(
             )
         }
 
-        Button(
-            onClick = onSaveToHistoryClick,
-            enabled = enabled,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(52.dp),
-            shape = MaterialTheme.shapes.medium
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
+        if (billStatus == Constants.DRAFT_STATUS){
+            Button(
+                onClick = onSaveToHistoryClick,
+                enabled = enabled,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp),
+                shape = MaterialTheme.shapes.medium
             ) {
-                Icon(
-                    imageVector = Icons.Filled.Cloud,
-                    contentDescription = null,
-                    modifier = Modifier.size(20.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "Guardar en la nube",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Cloud,
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Guardar en la nube",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+        }else{
+            Button(
+                onClick = onEditClick,
+                enabled = enabled,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp),
+                shape = MaterialTheme.shapes.medium
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Edit,
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Editar factura",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
         }
+
     }
 }
 
@@ -598,6 +635,8 @@ private fun Preview() {
                 BillActionButtons(
                     onCopyAllClick = {},
                     onSaveToHistoryClick = {},
+                    billStatus = Constants.SAVE_STATUS,
+                    onEditClick = {}
                 )
             }
         }
