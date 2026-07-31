@@ -8,4 +8,15 @@ data class DetailBillFormState(
     val customerTaxId: String = "",
     val totalAmount: String = "",
     val description: String = ""
-)
+){
+    val formattedCopyText: String
+        get() = buildString {
+            if (serialNumber.isNotBlank()) appendLine("Número de Serie: $serialNumber")
+            if (billNumber.isNotBlank()) appendLine("Número de Factura: $billNumber")
+            if (issueDate.isNotBlank()) appendLine("Fecha de Emisión: $issueDate")
+            if (vendorTaxId.isNotBlank()) appendLine("NIT del Proveedor: $vendorTaxId")
+            if (customerTaxId.isNotBlank()) appendLine("NIT Organización: $customerTaxId")
+            if (totalAmount.isNotBlank()) appendLine("Total: Q$totalAmount")
+            if (description.isNotBlank()) appendLine("Descripción: $description")
+        }.trimEnd()
+}

@@ -3,6 +3,7 @@ package yosel.dev.facturascan.screens.detail_bill.ui
 import android.content.ClipData
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,6 +21,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Cloud
 import androidx.compose.material.icons.outlined.Badge
 import androidx.compose.material.icons.outlined.BrokenImage
 import androidx.compose.material.icons.outlined.Business
@@ -85,6 +87,10 @@ fun BodyDetailBill(
     state: DetailBillState,
     onAction: (DetailBillAction) -> Unit
 ) {
+
+    val clipboard = LocalClipboard.current
+    val coroutineScope = rememberCoroutineScope()
+
     LazyColumn(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(32.dp)
@@ -113,8 +119,19 @@ fun BodyDetailBill(
 
         item {
             BillActionButtons(
-                onCopyAllClick = {  },
-                onSaveToHistoryClick = {  }
+                onCopyAllClick = {
+                    val textToCopy = state.formState.formattedCopyText
+
+                    if (textToCopy.isNotEmpty()) {
+                        coroutineScope.launch {
+                            val clipData = ClipData.newPlainText("Datos de Factura", textToCopy)
+                            clipboard.setClipEntry(ClipEntry(clipData))
+                            onAction(DetailBillAction.OnCopyAllClick)
+                        }
+
+                    }
+                },
+                onSaveToHistoryClick = { }
             )
         }
     }
@@ -126,7 +143,6 @@ fun InvoiceImageHeader(
     imageUri: String?,
     modifier: Modifier = Modifier
 ) {
-    // Definimos el contenedor redondeado según la interfaz de usuario de la imagen
     val imageShape = RoundedCornerShape(16.dp)
 
     SubcomposeAsyncImage(
@@ -138,7 +154,7 @@ fun InvoiceImageHeader(
         contentScale = ContentScale.Crop,
         modifier = modifier
             .fillMaxWidth()
-            .aspectRatio(16f / 10f) // Mantiene la relación de aspecto responsiva alineada a la UI
+            .aspectRatio(16f / 10f)
             .clip(imageShape)
             .background(MaterialTheme.colorScheme.surfaceVariant),
         loading = {
@@ -153,14 +169,14 @@ fun InvoiceImageHeader(
             }
         },
         error = {
-            // Estado de fallback cuando la URI no existe, expiró o no se pudo cargar
+
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
                 contentAlignment = Alignment.Center
             ) {
-                androidx.compose.foundation.layout.Column(
+                Column(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Icon(
@@ -170,7 +186,7 @@ fun InvoiceImageHeader(
                         modifier = Modifier.size(48.dp)
                     )
                     Text(
-                        text = "Error al cargar la imagen", // p. ej. "No se pudo cargar la imagen"
+                        text = "Error al cargar la imagen",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(top = 8.dp)
@@ -180,6 +196,7 @@ fun InvoiceImageHeader(
         }
     )
 }
+
 @Composable
 fun EmptyBillDetailsState(
     modifier: Modifier = Modifier
@@ -252,7 +269,7 @@ fun BillInputField(
     if (readOnly && onClick != null) {
         LaunchedEffect(interactionSource) {
             interactionSource.interactions.collect { interaction ->
-                if (interaction is androidx.compose.foundation.interaction.PressInteraction.Release) {
+                if (interaction is PressInteraction.Release) {
                     onClick()
                 }
             }
@@ -526,8 +543,30 @@ fun BillActionButtons(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Button(
+
+        OutlinedButton(
             onClick = onCopyAllClick,
+            enabled = enabled,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(52.dp),
+            shape = MaterialTheme.shapes.medium
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.ContentCopy,
+                contentDescription = null,
+                modifier = Modifier.size(20.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = "Copiar todo",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+        }
+
+        Button(
+            onClick = onSaveToHistoryClick,
             enabled = enabled,
             modifier = Modifier
                 .fillMaxWidth()
@@ -539,32 +578,17 @@ fun BillActionButtons(
                 horizontalArrangement = Arrangement.Center
             ) {
                 Icon(
-                    imageVector = Icons.Outlined.ContentCopy,
+                    imageVector = Icons.Filled.Cloud,
                     contentDescription = null,
                     modifier = Modifier.size(20.dp)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "Copiar todo",
+                    text = "Guardar en la nube",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
             }
-        }
-
-        OutlinedButton(
-            onClick = onSaveToHistoryClick,
-            enabled = enabled,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(52.dp),
-            shape = MaterialTheme.shapes.medium
-        ) {
-            Text(
-                text = "Guardar en la nube",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold
-            )
         }
     }
 }
@@ -574,8 +598,15 @@ fun BillActionButtons(
 private fun Preview() {
     FacturaScanTheme {
         Scaffold { innerPadding ->
-            Column(modifier = Modifier.padding(innerPadding)) {
-                DataReviewAlertCard()
+            Column(
+                modifier = Modifier
+                    .background(MaterialTheme.colorScheme.background)
+                    .padding(innerPadding)
+            ) {
+                BillActionButtons(
+                    onCopyAllClick = {},
+                    onSaveToHistoryClick = {},
+                )
             }
         }
     }
