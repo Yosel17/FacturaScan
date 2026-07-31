@@ -57,6 +57,14 @@ class DetailBillViewModel @AssistedInject constructor(
             DetailBillAction.OnDismissDeleteDialog -> {
                 _state.update { it.copy(showDialogDelete = false, warningMessage = "") }
             }
+
+            is DetailBillAction.OnCopyFieldClick -> {
+                copyFieldToClipboard(action.label, action.value)
+            }
+
+            DetailBillAction.OnCopyAllClick -> {
+                copyAllFields()
+            }
         }
     }
 
@@ -166,5 +174,26 @@ class DetailBillViewModel @AssistedInject constructor(
                     )
                 )
             }
+    }
+
+    private fun copyFieldToClipboard(label: String, value: String) {
+        if (value.isBlank()) return
+        viewModelScope.launch {
+            _eventChannel.send(
+                DetailBillEvent.ShowSuccessSnackbar("$label copiado al portapapeles")
+            )
+        }
+    }
+
+    private fun copyAllFields() {
+        val textToCopy = _state.value.formState.formattedCopyText
+
+        if (textToCopy.isEmpty()) return
+
+        viewModelScope.launch {
+            _eventChannel.send(
+                DetailBillEvent.ShowSuccessSnackbar("Todos los datos fueron copiados")
+            )
+        }
     }
 }
