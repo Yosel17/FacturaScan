@@ -27,6 +27,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import kotlinx.coroutines.launch
+import yosel.dev.facturascan.core.components.SnackbarType
+import yosel.dev.facturascan.core.components.showCustomSnackbar
 import yosel.dev.facturascan.core.utils.ObserveAsEvents
 import yosel.dev.facturascan.core.utils.createTempUri
 import yosel.dev.facturascan.core.utils.findActivity
@@ -176,7 +178,22 @@ fun EntryProviderScope<NavKey>.detailBillEntry(
             when(event){
                 is DetailBillEvent.ShowErrorSnackbar -> {
                     scope.launch {
-                        snackbarHostState.showSnackbar(event.message)
+                        snackbarHostState.showCustomSnackbar(
+                            message = event.message,
+                            type = SnackbarType.ERROR
+                        )
+                    }
+                }
+
+                DetailBillEvent.NavigateBack -> {
+                    onBack()
+                }
+                is DetailBillEvent.ShowSuccessSnackbar -> {
+                    scope.launch {
+                        snackbarHostState.showCustomSnackbar(
+                            message = event.message,
+                            type = SnackbarType.SUCCESS
+                        )
                     }
                 }
             }

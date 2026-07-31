@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
+import yosel.dev.facturascan.core.components.CustomSnackbarHost
 import yosel.dev.facturascan.core.components.DeleteConfirmationDialog
 import yosel.dev.facturascan.core.components.ErrorDialog
 import yosel.dev.facturascan.core.components.LoadingDialog
@@ -43,9 +44,7 @@ fun DetailBillScreen(
     Scaffold(
         modifier = modifier,
         snackbarHost = {
-            SnackbarHost(hostState = snackBarHostState){ data ->
-                SnackBarError(data = data)
-            }
+            CustomSnackbarHost(hostState = snackBarHostState)
         },
         topBar = {
             TopBarGlobal(
