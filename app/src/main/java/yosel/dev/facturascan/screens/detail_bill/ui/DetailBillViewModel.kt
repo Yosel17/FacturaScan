@@ -65,6 +65,14 @@ class DetailBillViewModel @AssistedInject constructor(
             DetailBillAction.OnCopyAllClick -> {
                 copyAllFields()
             }
+
+            DetailBillAction.SaveBill -> {
+                saveBill()
+            }
+
+            DetailBillAction.UpdateBill -> {
+                updateBill()
+            }
         }
     }
 
@@ -194,6 +202,82 @@ class DetailBillViewModel @AssistedInject constructor(
             _eventChannel.send(
                 DetailBillEvent.ShowSuccessSnackbar("Todos los datos fueron copiados")
             )
+        }
+    }
+
+    private fun saveBill(){
+
+        val cs = _state.value
+        _state.update { it.copy(isLoadingSaveBill = true) }
+
+        val newBill = cs.currentBill.copy(
+            invoiceNumber = cs.formState.billNumber,
+            serialNumber = cs.formState.serialNumber,
+            issueDate = cs.formState.issueDate,
+            vendorTaxId = cs.formState.vendorTaxId,
+            customerTaxId = cs.formState.customerTaxId,
+            totalAmount = cs.formState.totalAmount.toDouble(),
+            description = cs.formState.description,
+            status = Constants.SAVE_STATUS
+        )
+
+        viewModelScope.launch {
+            repository.saveBillLocalAdnFirestore(bill = newBill)
+                .onSuccess {
+                    _state.update {
+                        it.copy(currentBill = newBill, isLoadingSaveBill = false)
+                    }
+                    _eventChannel.send(
+                        element = DetailBillEvent.ShowSuccessSnackbar("Factura guardada con éxito")
+                    )
+
+                }.onFailure {
+                    _state.update {
+                        it.copy(isLoadingSaveBill = false)
+                    }
+                    _eventChannel.send(
+                        element = DetailBillEvent.ShowErrorSnackbar(
+                            "No pudimos guardar la factura. Inténtalo de nuevo."
+                        )
+                    )
+                }
+        }
+    }
+
+    private fun updateBill(){
+        val cs = _state.value
+        _state.update { it.copy(isLoadingUpdateBill = true) }
+
+        val newBill = cs.currentBill.copy(
+            invoiceNumber = cs.formState.billNumber,
+            serialNumber = cs.formState.serialNumber,
+            issueDate = cs.formState.issueDate,
+            vendorTaxId = cs.formState.vendorTaxId,
+            customerTaxId = cs.formState.customerTaxId,
+            totalAmount = cs.formState.totalAmount.toDouble(),
+            description = cs.formState.description,
+        )
+
+        viewModelScope.launch {
+            repository.updateBill(bill = newBill)
+                .onSuccess {
+                    _state.update {
+                        it.copy(currentBill = newBill, isLoadingUpdateBill = false)
+                    }
+                    _eventChannel.send(
+                        element = DetailBillEvent.ShowSuccessSnackbar("Cambios guardados con éxito")
+                    )
+
+                }.onFailure {
+                    _state.update {
+                        it.copy(isLoadingUpdateBill = false)
+                    }
+                    _eventChannel.send(
+                        element = DetailBillEvent.ShowErrorSnackbar(
+                            "No pudimos guardar los cambios. Inténtalo de nuevo."
+                        )
+                    )
+                }
         }
     }
 }

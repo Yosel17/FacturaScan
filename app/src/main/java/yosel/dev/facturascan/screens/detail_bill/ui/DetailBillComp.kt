@@ -22,6 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Cloud
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.outlined.Badge
 import androidx.compose.material.icons.outlined.BrokenImage
 import androidx.compose.material.icons.outlined.Business
@@ -113,25 +114,39 @@ fun BodyDetailBill(
             )
         }
 
-        item {
-            DataReviewAlertCard()
+        if (state.currentBill.status == Constants.DRAFT_STATUS){
+            item {
+                DataReviewAlertCard()
+            }
+
         }
 
         item {
+            val isActionButtonEnabled = if (state.currentBill.status == Constants.DRAFT_STATUS) {
+                state.isSaveEnabled
+            } else {
+                state.isEditEnabled
+            }
+
             BillActionButtons(
+                billStatus = state.currentBill.status,
+                actionEnabled = isActionButtonEnabled,
                 onCopyAllClick = {
                     val textToCopy = state.formState.formattedCopyText
-
                     if (textToCopy.isNotEmpty()) {
                         coroutineScope.launch {
                             val clipData = ClipData.newPlainText("Datos de Factura", textToCopy)
                             clipboard.setClipEntry(ClipEntry(clipData))
                             onAction(DetailBillAction.OnCopyAllClick)
                         }
-
                     }
                 },
-                onSaveToHistoryClick = { }
+                onSaveToHistoryClick = {
+                    onAction(DetailBillAction.SaveBill)
+                },
+                onEditClick = {
+                    onAction(DetailBillAction.UpdateBill)
+                }
             )
         }
     }
@@ -258,6 +273,8 @@ fun BillInputField(
     minLines: Int = 1,
     maxLines: Int = 1,
     readOnly: Boolean = false,
+    isError: Boolean = false,
+    errorMessage: String? = null,
     onClick: (() -> Unit)? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default
 ) {
@@ -265,7 +282,6 @@ fun BillInputField(
     val interactionSource = remember { MutableInteractionSource() }
     val coroutineScope = rememberCoroutineScope()
 
-    // Interceptamos el tap/click sobre el campo cuando es de solo lectura
     if (readOnly && onClick != null) {
         LaunchedEffect(interactionSource) {
             interactionSource.interactions.collect { interaction ->
@@ -305,6 +321,10 @@ fun BillInputField(
                 }
             }
         },
+        isError = isError,
+        supportingText = if (isError && !errorMessage.isNullOrEmpty()) {
+            { Text(text = errorMessage) }
+        } else null,
         readOnly = readOnly,
         singleLine = singleLine,
         minLines = minLines,
@@ -316,7 +336,8 @@ fun BillInputField(
         textStyle = MaterialTheme.typography.bodyLarge,
         colors = OutlinedTextFieldDefaults.colors(
             focusedLeadingIconColor = MaterialTheme.colorScheme.primary,
-            unfocusedLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant
+            unfocusedLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            errorLeadingIconColor = MaterialTheme.colorScheme.error
         )
     )
 }
@@ -379,6 +400,8 @@ fun BillDataForm(
             value = formState.billNumber,
             onValueChange = { onFormStateChange(it, Constants.BILL_NUMBER_FIELD) },
             leadingIcon = Icons.Outlined.Receipt,
+            isError = formState.billNumber.isBlank(),
+            errorMessage = "Este campo no puede estar vacío",
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
             onCopyClick = onCopyClick,
         )
@@ -388,6 +411,8 @@ fun BillDataForm(
             value = formState.serialNumber,
             onValueChange = { onFormStateChange(it, Constants.SERIAL_NUMBER_FIELD) },
             leadingIcon = Icons.Outlined.Key,
+            isError = formState.serialNumber.isBlank(),
+            errorMessage = "Este campo no puede estar vacío",
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
             onCopyClick = onCopyClick,
         )
@@ -397,6 +422,8 @@ fun BillDataForm(
             value = formState.issueDate,
             onValueChange = { onFormStateChange(it, Constants.ISSUE_DATE_FIELD) },
             leadingIcon = Icons.Outlined.CalendarToday,
+            isError = formState.issueDate.isBlank(),
+            errorMessage = "Este campo no puede estar vacío",
             readOnly = true,
             onClick = { showDatePicker = true },
             onCopyClick = onCopyClick,
@@ -407,6 +434,8 @@ fun BillDataForm(
             value = formState.vendorTaxId,
             onValueChange = { onFormStateChange(it, Constants.VENDOR_TAX_ID_FIELD) },
             leadingIcon = Icons.Outlined.Badge,
+            isError = formState.vendorTaxId.isBlank(),
+            errorMessage = "Este campo no puede estar vacío",
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
             onCopyClick = onCopyClick,
         )
@@ -416,6 +445,8 @@ fun BillDataForm(
             value = formState.customerTaxId,
             onValueChange = { onFormStateChange(it, Constants.CUSTOMER_TAX_ID) },
             leadingIcon = Icons.Outlined.Business,
+            isError = formState.customerTaxId.isBlank(),
+            errorMessage = "Este campo no puede estar vacío",
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
             onCopyClick = onCopyClick,
         )
@@ -429,6 +460,8 @@ fun BillDataForm(
                 }
             },
             leadingIcon = Icons.Outlined.Payments,
+            isError = formState.totalAmount.isBlank(),
+            errorMessage = "Este campo no puede estar vacío",
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Decimal,
                 imeAction = ImeAction.Next
@@ -456,7 +489,6 @@ fun BillDataForm(
         val initialMillis = remember(formState.issueDate) {
             formState.issueDate.parseIssueDateToMillis()
         }
-
         BillDatePickerDialog(
             initialDateMillis = initialMillis,
             onDateSelected = { formattedDate ->
@@ -528,14 +560,16 @@ fun DataReviewAlertCard(
 fun BillActionButtons(
     onCopyAllClick: () -> Unit,
     onSaveToHistoryClick: () -> Unit,
+    onEditClick: () -> Unit,
     modifier: Modifier = Modifier,
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    actionEnabled: Boolean = true,
+    billStatus: Int
 ) {
     Column(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth().padding(bottom = 48.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-
         OutlinedButton(
             onClick = onCopyAllClick,
             enabled = enabled,
@@ -557,29 +591,57 @@ fun BillActionButtons(
             )
         }
 
-        Button(
-            onClick = onSaveToHistoryClick,
-            enabled = enabled,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(52.dp),
-            shape = MaterialTheme.shapes.medium
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
+        if (billStatus == Constants.DRAFT_STATUS) {
+            Button(
+                onClick = onSaveToHistoryClick,
+                enabled = actionEnabled,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp),
+                shape = MaterialTheme.shapes.medium
             ) {
-                Icon(
-                    imageVector = Icons.Filled.Cloud,
-                    contentDescription = null,
-                    modifier = Modifier.size(20.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "Guardar en la nube",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Cloud,
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Guardar en la nube",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+        } else {
+            Button(
+                onClick = onEditClick,
+                enabled = actionEnabled,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp),
+                shape = MaterialTheme.shapes.medium
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Edit,
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Editar factura",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
         }
     }
@@ -598,6 +660,8 @@ private fun Preview() {
                 BillActionButtons(
                     onCopyAllClick = {},
                     onSaveToHistoryClick = {},
+                    billStatus = Constants.SAVE_STATUS,
+                    onEditClick = {}
                 )
             }
         }

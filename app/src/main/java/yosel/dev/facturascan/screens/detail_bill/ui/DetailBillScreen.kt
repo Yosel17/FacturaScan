@@ -140,6 +140,24 @@ fun DetailBillScreen(
                 colorTitle = MaterialTheme.colorScheme.error
             )
         }
+
+        if (state.isLoadingSaveBill){
+            LoadingDialog(
+                title = "Guardando factura...",
+                subtitle = "Por favor espera un momento mientras guardamos la factura",
+                color = MaterialTheme.colorScheme.primary,
+                colorTitle = MaterialTheme.colorScheme.primary
+            )
+        }
+
+        if (state.isLoadingUpdateBill){
+            LoadingDialog(
+                title = "Actualizando factura...",
+                subtitle = "Por favor espera un momento mientras guardamos los cambios.",
+                color = MaterialTheme.colorScheme.primary,
+                colorTitle = MaterialTheme.colorScheme.primary
+            )
+        }
     }
 }
 

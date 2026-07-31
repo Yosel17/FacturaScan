@@ -9,6 +9,16 @@ data class DetailBillFormState(
     val totalAmount: String = "",
     val description: String = ""
 ){
+    // Validamos que ningún campo obligatorio esté vacío o en blanco
+    val isValid: Boolean
+        get() = billNumber.isNotBlank() &&
+                serialNumber.isNotBlank() &&
+                issueDate.isNotBlank() &&
+                vendorTaxId.isNotBlank() &&
+                customerTaxId.isNotBlank() &&
+                totalAmount.isNotBlank()
+
+    // Formateador de texto a copiar
     val formattedCopyText: String
         get() = buildString {
             if (billNumber.isNotBlank()) appendLine("Número de Factura: $billNumber")

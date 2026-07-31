@@ -6,9 +6,11 @@ interface DetailBillRepository {
 
     suspend fun getBillById(id: String): Result<BillModel>
 
-    suspend fun saveBillFirestore(bill: BillModel): Result<Unit>
+    suspend fun saveBillLocalAdnFirestore(bill: BillModel): Result<Unit>
 
     suspend fun deleteBillRoom(idBill: String): Result<Unit>
 
     suspend fun deleteBillFirestore(idBill: String): Result<Unit>
+
+    suspend fun updateBill(bill: BillModel): Result<Unit>
 }
