@@ -7,5 +7,7 @@ data class DetailBillState(
     val isError: Boolean = false,
     val errorMessage: String = "",
     val currentBill: BillModel = BillModel(),
-    val formState: DetailBillFormState = DetailBillFormState()
+    val formState: DetailBillFormState = DetailBillFormState(),
+    val showDialogDelete: Boolean = false,
+    val warningMessage: String = ""
 )

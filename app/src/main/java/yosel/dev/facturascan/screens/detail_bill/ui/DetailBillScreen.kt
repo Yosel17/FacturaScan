@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
+import yosel.dev.facturascan.core.components.DeleteConfirmationDialog
 import yosel.dev.facturascan.core.components.ErrorDialog
 import yosel.dev.facturascan.core.components.SnackBarError
 import yosel.dev.facturascan.core.components.TopBarGlobal
@@ -52,7 +53,9 @@ fun DetailBillScreen(
                 actions = {
                     if (state.currentBill.id.isNotEmpty()){
                         IconButton(
-                            onClick = {}
+                            onClick = {
+                                onAction(DetailBillAction.OnClickDelete)
+                            }
                         ) {
 
                             Icon(
@@ -113,6 +116,18 @@ fun DetailBillScreen(
                 message = state.errorMessage,
                 onDismissRequest = {
                     onAction(DetailBillAction.OnDismissErrorDialog)
+                }
+            )
+        }
+
+        if (state.showDialogDelete){
+            DeleteConfirmationDialog(
+                warningMessage = state.warningMessage,
+                onDismissRequest = {
+                    onAction(DetailBillAction.OnDismissDeleteDialog)
+                },
+                onConfirmDelete = {
+                    onAction(DetailBillAction.ConfirmDelete)
                 }
             )
         }
