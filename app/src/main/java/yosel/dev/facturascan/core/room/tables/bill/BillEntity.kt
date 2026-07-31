@@ -17,5 +17,6 @@ data class BillEntity(
     val issueDate: String,
     val totalAmount: Double,
     val description: String,
-    val imageUrl: String
+    val imageUrl: String,
+    val status: Int
 )

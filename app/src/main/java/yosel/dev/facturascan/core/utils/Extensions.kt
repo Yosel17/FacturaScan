@@ -34,7 +34,8 @@ fun BillResponse.toModel(): BillModel{
         issueDate = issueDate,
         totalAmount = totalAmount,
         description = description,
-        imageUrl = imageUrl
+        imageUrl = imageUrl,
+        status = status
     )
 }
 
@@ -50,7 +51,8 @@ fun BillResponse.toEntity(): BillEntity = BillEntity(
     issueDate = issueDate,
     totalAmount = totalAmount,
     description = description,
-    imageUrl = imageUrl
+    imageUrl = imageUrl,
+    status = status
 )
 
 fun BillAiResponse.toModel(imageUrl: String = ""): BillModel {
@@ -80,7 +82,8 @@ fun BillModel.toEntity(): BillEntity = BillEntity(
     issueDate = issueDate,
     totalAmount = totalAmount,
     description = description,
-    imageUrl = imageUrl
+    imageUrl = imageUrl,
+    status = status
 )
 
 fun BillModel.toRequest(): BillRequest = BillRequest(
@@ -95,7 +98,8 @@ fun BillModel.toRequest(): BillRequest = BillRequest(
     issueDate = issueDate,
     totalAmount = totalAmount,
     description = description,
-    imageUrl = imageUrl
+    imageUrl = imageUrl,
+    status = status
 )
 
 fun BillEntity.toModel(): BillModel = BillModel(
@@ -110,7 +114,8 @@ fun BillEntity.toModel(): BillModel = BillModel(
     issueDate = issueDate,
     totalAmount = totalAmount,
     description = description,
-    imageUrl = imageUrl
+    imageUrl = imageUrl,
+    status = status
 )
 fun List<BillResponse>.toBillListResponseToModel(): List<BillModel>{
     return map { it.toModel() }

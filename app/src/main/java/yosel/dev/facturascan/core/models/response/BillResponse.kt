@@ -1,5 +1,6 @@
 package yosel.dev.facturascan.core.models.response
 
+import yosel.dev.facturascan.core.utils.Constants
 import java.util.Date
 
 data class BillResponse(
@@ -22,5 +23,6 @@ data class BillResponse(
 
     // Campos útiles para auditoría y escaneo OCR
     val description: String = "",
-    val imageUrl: String = ""
+    val imageUrl: String = "",
+    val status: Int = Constants.DRAFT_STATUS
 )

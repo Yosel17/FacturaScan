@@ -1,6 +1,5 @@
 package yosel.dev.facturascan.screens.upload_bill.ui
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -11,6 +10,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import yosel.dev.facturascan.core.models.model.BillModel
+import yosel.dev.facturascan.core.utils.Constants
 import yosel.dev.facturascan.screens.upload_bill.domain.UploadBillRepository
 import java.util.UUID
 import javax.inject.Inject
@@ -80,7 +80,10 @@ class UploadBillViewModel @Inject constructor(
 
             repository.processInvoice(currentUri)
                 .onSuccess { billModel ->
-                    val bill = billModel.copy(id = UUID.randomUUID().toString())
+                    val bill = billModel.copy(
+                        id = UUID.randomUUID().toString(),
+                        status = Constants.DRAFT_STATUS
+                    )
                     saveBillRoom(bill = bill)
                 }
                 .onFailure { error ->
@@ -98,9 +101,10 @@ class UploadBillViewModel @Inject constructor(
 
     private suspend fun saveBillRoom(bill: BillModel){
         repository.saveBillRoom(bill = bill)
-            .onSuccess { imageUrl ->
-                val updatedBill = bill.copy(imageUrl = imageUrl)
-                saveBillFirestore(bill = updatedBill)
+            .onSuccess {
+                _state.update {
+                    it.copy(isLoading = false)
+                }
             }.onFailure { error ->
                 _state.update {
                     it.copy(isLoading = false)
@@ -112,23 +116,4 @@ class UploadBillViewModel @Inject constructor(
                 )
             }
     }
-
-    private suspend fun saveBillFirestore(bill: BillModel){
-        repository.saveBillFirestore(bill = bill)
-            .onSuccess {
-                _state.update {
-                    it.copy(isLoading = false)
-                }
-            }.onFailure { error ->
-                _state.update {
-                    it.copy(isLoading = false)
-                }
-                _eventChannel.send(
-                    element = UploadBillEvent.ShowErrorSnackbar(
-                        "Error al guardar la factura en la nube."
-                    )
-                )
-            }
-    }
-
 }

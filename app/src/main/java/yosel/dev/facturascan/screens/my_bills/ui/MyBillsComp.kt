@@ -42,7 +42,9 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import yosel.dev.facturascan.core.models.model.BillModel
+import yosel.dev.facturascan.core.utils.Constants
 import yosel.dev.facturascan.ui.theme.FacturaScanTheme
+import yosel.dev.facturascan.ui.theme.extendedColors
 
 @Composable
 fun BodyMyBills(
@@ -149,6 +151,17 @@ fun ConsumptionCard(
                     color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f)
                 )
             }
+        }
+    }
+}
+
+enum class BillStatus(val code: Int, val label: String) {
+    DRAFT(Constants.DRAFT_STATUS, "Borrador"),
+    SAVED(Constants.SAVE_STATUS, "Guardada");
+
+    companion object {
+        fun fromCode(code: Int): BillStatus {
+            return entries.find { it.code == code } ?: DRAFT
         }
     }
 }
@@ -267,20 +280,27 @@ fun BillItem(
                         modifier = Modifier.align(Alignment.CenterVertically)
                     )
 
+                    // Mapeo dinámico de estado consumiendo extendedColors
+                    val status = BillStatus.fromCode(bill.status)
+                    val (containerColor, onContainerColor) = when (status) {
+                        BillStatus.DRAFT -> MaterialTheme.extendedColors.draftContainer to MaterialTheme.extendedColors.onDraftContainer
+                        BillStatus.SAVED -> MaterialTheme.extendedColors.savedContainer to MaterialTheme.extendedColors.onSavedContainer
+                    }
+
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(6.dp))
-                            .background(MaterialTheme.colorScheme.secondaryContainer)
+                            .background(containerColor)
                             .padding(horizontal = 8.dp, vertical = 2.dp)
                             .align(Alignment.CenterVertically)
                     ) {
                         Text(
-                            text = "Extraído",
+                            text = status.label,
                             style = MaterialTheme.typography.labelSmall.copy(
                                 fontSize = 10.sp,
                                 fontWeight = FontWeight.Medium
                             ),
-                            color = MaterialTheme.colorScheme.onSecondaryContainer,
+                            color = onContainerColor,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )

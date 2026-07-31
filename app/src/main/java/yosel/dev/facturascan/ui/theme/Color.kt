@@ -217,3 +217,19 @@ val surfaceContainerLowDarkHighContrast = Color(0xFF1B211E)
 val surfaceContainerDarkHighContrast = Color(0xFF2C322E)
 val surfaceContainerHighDarkHighContrast = Color(0xFF373D39)
 val surfaceContainerHighestDarkHighContrast = Color(0xFF424844)
+
+// ==========================================
+// Colores Personalizados (Extended Colors)
+// ==========================================
+
+// Borrador (Ámbar suave)
+val draftContainerLight = Color(0xFFFFF0C2)
+val onDraftContainerLight = Color(0xFF563E00)
+val draftContainerDark = Color(0xFF422F00)
+val onDraftContainerDark = Color(0xFFFFE08B)
+
+// Guardada (Azul Suave)
+val savedContainerLight = Color(0xFFDCE8FF)
+val onSavedContainerLight = Color(0xFF00315D)
+val savedContainerDark = Color(0xFF002A50)
+val onSavedContainerDark = Color(0xFFB9D3FF)
