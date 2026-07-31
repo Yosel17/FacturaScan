@@ -15,4 +15,6 @@ sealed interface DetailBillAction {
     data class OnCopyFieldClick(val label: String, val value: String) : DetailBillAction
 
     data object OnCopyAllClick : DetailBillAction
+
+    data object SaveBill: DetailBillAction
 }

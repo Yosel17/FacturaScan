@@ -136,7 +136,9 @@ fun BodyDetailBill(
 
                     }
                 },
-                onSaveToHistoryClick = { },
+                onSaveToHistoryClick = {
+                    onAction(DetailBillAction.SaveBill)
+                },
                 onEditClick = {}
             )
         }
