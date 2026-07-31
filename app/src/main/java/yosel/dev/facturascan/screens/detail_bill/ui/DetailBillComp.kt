@@ -374,17 +374,6 @@ fun BillDataForm(
             color = MaterialTheme.colorScheme.onBackground
         )
 
-        // 1. Número de Serie
-        BillInputField(
-            label = "Número de Serie",
-            value = formState.serialNumber,
-            onValueChange = { onFormStateChange(it, Constants.SERIAL_NUMBER_FIELD) },
-            leadingIcon = Icons.Outlined.Key,
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-            onCopyClick = onCopyClick,
-        )
-
-        // 2. Número de Factura
         BillInputField(
             label = "Número de Factura",
             value = formState.billNumber,
@@ -394,7 +383,15 @@ fun BillDataForm(
             onCopyClick = onCopyClick,
         )
 
-        // 3. Fecha de Emisión (Solo Lectura + DatePicker)
+        BillInputField(
+            label = "Número de Serie",
+            value = formState.serialNumber,
+            onValueChange = { onFormStateChange(it, Constants.SERIAL_NUMBER_FIELD) },
+            leadingIcon = Icons.Outlined.Key,
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+            onCopyClick = onCopyClick,
+        )
+
         BillInputField(
             label = "Fecha de Emisión",
             value = formState.issueDate,
@@ -405,7 +402,6 @@ fun BillDataForm(
             onCopyClick = onCopyClick,
         )
 
-        // 4. NIT del Proveedor
         BillInputField(
             label = "NIT del Proveedor",
             value = formState.vendorTaxId,
@@ -415,7 +411,6 @@ fun BillDataForm(
             onCopyClick = onCopyClick,
         )
 
-        // 5. NIT Organización (Receptor)
         BillInputField(
             label = "NIT Organización (Receptor)",
             value = formState.customerTaxId,
@@ -425,7 +420,6 @@ fun BillDataForm(
             onCopyClick = onCopyClick,
         )
 
-        // 6. Total de la factura
         BillInputField(
             label = "Total de la factura",
             value = formState.totalAmount,
@@ -442,7 +436,6 @@ fun BillDataForm(
             onCopyClick = onCopyClick,
         )
 
-        // 7. Descripción
         BillInputField(
             label = "Descripción (opcional)",
             value = formState.description,
@@ -453,13 +446,12 @@ fun BillDataForm(
             maxLines = 4,
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Text,
-                imeAction = ImeAction.Done
+                imeAction = ImeAction.Default
             ),
             onCopyClick = onCopyClick,
         )
     }
 
-    // Modal del calendario
     if (showDatePicker) {
         val initialMillis = remember(formState.issueDate) {
             formState.issueDate.parseIssueDateToMillis()

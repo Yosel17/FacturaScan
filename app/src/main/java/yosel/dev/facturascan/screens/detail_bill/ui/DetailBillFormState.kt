@@ -11,12 +11,12 @@ data class DetailBillFormState(
 ){
     val formattedCopyText: String
         get() = buildString {
-            if (serialNumber.isNotBlank()) appendLine("Número de Serie: $serialNumber")
             if (billNumber.isNotBlank()) appendLine("Número de Factura: $billNumber")
+            if (serialNumber.isNotBlank()) appendLine("Número de Serie: $serialNumber")
             if (issueDate.isNotBlank()) appendLine("Fecha de Emisión: $issueDate")
             if (vendorTaxId.isNotBlank()) appendLine("NIT del Proveedor: $vendorTaxId")
             if (customerTaxId.isNotBlank()) appendLine("NIT Organización: $customerTaxId")
-            if (totalAmount.isNotBlank()) appendLine("Total: Q$totalAmount")
+            if (totalAmount.isNotBlank()) appendLine("Total: $totalAmount")
             if (description.isNotBlank()) appendLine("Descripción: $description")
         }.trimEnd()
 }
