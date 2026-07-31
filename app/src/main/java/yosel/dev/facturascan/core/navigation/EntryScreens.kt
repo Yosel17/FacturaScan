@@ -30,6 +30,7 @@ import kotlinx.coroutines.launch
 import yosel.dev.facturascan.core.utils.ObserveAsEvents
 import yosel.dev.facturascan.core.utils.createTempUri
 import yosel.dev.facturascan.core.utils.findActivity
+import yosel.dev.facturascan.screens.detail_bill.ui.DetailBillEvent
 import yosel.dev.facturascan.screens.detail_bill.ui.DetailBillScreen
 import yosel.dev.facturascan.screens.detail_bill.ui.DetailBillViewModel
 import yosel.dev.facturascan.screens.my_bills.ui.MyBillsEvent
@@ -169,6 +170,17 @@ fun EntryProviderScope<NavKey>.detailBillEntry(
         )
         val state by viewModel.state.collectAsStateWithLifecycle()
         val snackbarHostState = remember { SnackbarHostState() }
+        val scope = rememberCoroutineScope()
+
+        ObserveAsEvents(viewModel.events) { event ->
+            when(event){
+                is DetailBillEvent.ShowErrorSnackbar -> {
+                    scope.launch {
+                        snackbarHostState.showSnackbar(event.message)
+                    }
+                }
+            }
+        }
 
         DetailBillScreen(
             modifier = Modifier

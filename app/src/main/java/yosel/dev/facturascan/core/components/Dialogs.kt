@@ -35,6 +35,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -152,7 +153,9 @@ fun PermissionSettingsDialog(
 @Composable
 fun LoadingDialog(
     title: String = "Cargando...",
-    subtitle: String = "Por favor espera un momento"
+    subtitle: String = "Por favor espera un momento",
+    color: Color = MaterialTheme.colorScheme.primary,
+    colorTitle: Color = MaterialTheme.colorScheme.onSurface
 ) {
     Dialog(
         onDismissRequest = {  },
@@ -174,7 +177,7 @@ fun LoadingDialog(
 
                 LoadingIndicator(
                     modifier = Modifier.size(64.dp),
-                    color = MaterialTheme.colorScheme.primary
+                    color = color
                 )
 
                 Spacer(modifier = Modifier.height(20.dp))
@@ -183,7 +186,7 @@ fun LoadingDialog(
                     text = title,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = colorTitle,
                     textAlign = TextAlign.Center
                 )
 

@@ -6,8 +6,10 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import yosel.dev.facturascan.core.models.model.BillModel
@@ -28,6 +30,9 @@ class DetailBillViewModel @AssistedInject constructor(
     private val _state = MutableStateFlow(DetailBillState())
     val state: StateFlow<DetailBillState> = _state
 
+    private val _eventChannel = Channel<DetailBillEvent>()
+    val events = _eventChannel.receiveAsFlow()
+
     init {
         getBill(idBill = idBill)
     }
@@ -41,7 +46,9 @@ class DetailBillViewModel @AssistedInject constructor(
             is DetailBillAction.OnChangeValueFormState -> {
                 onValueFormStateChange(action.value, action.field)
             }
-            DetailBillAction.ConfirmDelete -> {}
+            DetailBillAction.ConfirmDelete -> {
+                deleteBill()
+            }
             DetailBillAction.OnClickDelete -> {
                 showDialogError()
             }
@@ -105,5 +112,27 @@ class DetailBillViewModel @AssistedInject constructor(
             "¿Estás seguro de eliminar esta factura? Esta acción es permanente y no se puede deshacer."
 
         _state.update { it.copy(warningMessage = warningText, showDialogDelete = true) }
+    }
+
+    private fun deleteBill(){
+        _state.update {
+            it.copy(showDialogDelete = false, warningMessage = "", isLoadingDeleteBill = true)
+        }
+
+        viewModelScope.launch {
+            repository.deleteBillRoom(idBill = _state.value.currentBill.id)
+                .onSuccess {
+
+                }.onFailure { error ->
+                    _state.update {
+                        it.copy(isLoadingDeleteBill = false)
+                    }
+                    _eventChannel.send(
+                        element = DetailBillEvent.ShowErrorSnackbar(
+                            "No pudimos eliminar la factura del dispositivo. Inténtalo de nuevo."
+                        )
+                    )
+                }
+        }
     }
 }

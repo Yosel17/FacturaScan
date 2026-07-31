@@ -25,6 +25,7 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import yosel.dev.facturascan.core.components.DeleteConfirmationDialog
 import yosel.dev.facturascan.core.components.ErrorDialog
+import yosel.dev.facturascan.core.components.LoadingDialog
 import yosel.dev.facturascan.core.components.SnackBarError
 import yosel.dev.facturascan.core.components.TopBarGlobal
 import yosel.dev.facturascan.core.models.model.BillModel
@@ -129,6 +130,15 @@ fun DetailBillScreen(
                 onConfirmDelete = {
                     onAction(DetailBillAction.ConfirmDelete)
                 }
+            )
+        }
+
+        if (state.isLoadingDeleteBill){
+            LoadingDialog(
+                title = "Eliminando factura...",
+                subtitle = "Por favor espera un momento mientras eliminamos la factura",
+                color = MaterialTheme.colorScheme.error,
+                colorTitle = MaterialTheme.colorScheme.error
             )
         }
     }
