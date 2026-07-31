@@ -6,13 +6,17 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import yosel.dev.facturascan.core.models.model.BillModel
 import yosel.dev.facturascan.core.utils.Constants
 import yosel.dev.facturascan.screens.detail_bill.domain.DetailBillRepository
+import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel(assistedFactory = DetailBillViewModel.Factory::class)
 class DetailBillViewModel @AssistedInject constructor(
@@ -28,6 +32,9 @@ class DetailBillViewModel @AssistedInject constructor(
     private val _state = MutableStateFlow(DetailBillState())
     val state: StateFlow<DetailBillState> = _state
 
+    private val _eventChannel = Channel<DetailBillEvent>()
+    val events = _eventChannel.receiveAsFlow()
+
     init {
         getBill(idBill = idBill)
     }
@@ -40,6 +47,15 @@ class DetailBillViewModel @AssistedInject constructor(
 
             is DetailBillAction.OnChangeValueFormState -> {
                 onValueFormStateChange(action.value, action.field)
+            }
+            DetailBillAction.ConfirmDelete -> {
+                deleteBill()
+            }
+            DetailBillAction.OnClickDelete -> {
+                showDialogError()
+            }
+            DetailBillAction.OnDismissDeleteDialog -> {
+                _state.update { it.copy(showDialogDelete = false, warningMessage = "") }
             }
         }
     }
@@ -89,5 +105,66 @@ class DetailBillViewModel @AssistedInject constructor(
             Constants.TOTAL_AMOUNT_FIELD -> _state.update { it.copy(formState = it.formState.copy(totalAmount = value)) }
             Constants.DESCRIPTION_FIELD -> _state.update { it.copy(formState = it.formState.copy(description = value)) }
         }
+    }
+
+    private fun showDialogError(){
+        val warningText = if (_state.value.currentBill.status == Constants.DRAFT_STATUS)
+            "Esta acción eliminará permanentemente este borrador. No podrás recuperarlo."
+        else
+            "¿Estás seguro de eliminar esta factura? Esta acción es permanente y no se puede deshacer."
+
+        _state.update { it.copy(warningMessage = warningText, showDialogDelete = true) }
+    }
+
+    private fun deleteBill(){
+        _state.update {
+            it.copy(showDialogDelete = false, warningMessage = "", isLoadingDeleteBill = true)
+        }
+
+        viewModelScope.launch {
+            repository.deleteBillRoom(idBill = _state.value.currentBill.id)
+                .onSuccess {
+                    if (_state.value.currentBill.status == Constants.DRAFT_STATUS){
+                        _state.update { it.copy(isLoadingDeleteBill = false) }
+                        _eventChannel.send(
+                            DetailBillEvent.ShowSuccessSnackbar("Factura eliminada con éxito")
+                        )
+                        delay(1000.milliseconds)
+                        _eventChannel.send(DetailBillEvent.NavigateBack)
+                    }else {
+                        deleteBillFirestore()
+                    }
+                }.onFailure { error ->
+                    _state.update {
+                        it.copy(isLoadingDeleteBill = false)
+                    }
+                    _eventChannel.send(
+                        element = DetailBillEvent.ShowErrorSnackbar(
+                            "No pudimos eliminar la factura del dispositivo. Inténtalo de nuevo."
+                        )
+                    )
+                }
+        }
+    }
+
+    private suspend fun deleteBillFirestore(){
+        repository.deleteBillFirestore(_state.value.currentBill.id)
+            .onSuccess {
+                _state.update { it.copy(isLoadingDeleteBill = false) }
+                _eventChannel.send(
+                    DetailBillEvent.ShowSuccessSnackbar("Factura eliminada con éxito")
+                )
+                delay(1000.milliseconds)
+                _eventChannel.send(DetailBillEvent.NavigateBack)
+            }.onFailure {
+                _state.update {
+                    it.copy(isLoadingDeleteBill = false)
+                }
+                _eventChannel.send(
+                    element = DetailBillEvent.ShowErrorSnackbar(
+                        "No pudimos eliminar la factura de la nube. Inténtalo de nuevo."
+                    )
+                )
+            }
     }
 }

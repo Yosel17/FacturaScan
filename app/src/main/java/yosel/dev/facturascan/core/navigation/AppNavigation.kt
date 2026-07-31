@@ -32,6 +32,9 @@ fun AppNavigation(startDestination: Screens) {
 
             uploadBillEntry(
                 onNavigate = { screen ->
+                    if (screen is Screens.DetailBill) {
+                        backStack.removeLastOrNull()
+                    }
                     backStack.add(screen)
                 },
                 onBack = {

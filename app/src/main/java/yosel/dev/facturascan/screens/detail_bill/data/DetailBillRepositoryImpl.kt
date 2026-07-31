@@ -39,4 +39,26 @@ class DetailBillRepositoryImpl @Inject constructor(
             }
         }
     }
+
+    override suspend fun deleteBillRoom(idBill: String): Result<Unit> {
+        return withContext(Dispatchers.IO) {
+            try {
+                billDao.deleteBillById(id = idBill)
+                Result.success(Unit)
+            } catch (e: Exception) {
+                Result.failure(exception = e)
+            }
+        }
+    }
+
+    override suspend fun deleteBillFirestore(idBill: String): Result<Unit> {
+        return withContext(Dispatchers.IO) {
+            try {
+                billsDataSource.deleteBill(id = idBill)
+                Result.success(Unit)
+            } catch (e: Exception) {
+                Result.failure(exception = e)
+            }
+        }
+    }
 }

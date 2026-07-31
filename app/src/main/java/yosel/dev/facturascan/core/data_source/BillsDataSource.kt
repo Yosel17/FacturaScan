@@ -25,4 +25,11 @@ class BillsDataSource @Inject constructor(
             .await()
     }
 
+    suspend fun deleteBill(id: String) {
+        firestore.collection(Constants.BILLS_COLLECTION)
+            .document(id)
+            .delete()
+            .await()
+    }
+
 }

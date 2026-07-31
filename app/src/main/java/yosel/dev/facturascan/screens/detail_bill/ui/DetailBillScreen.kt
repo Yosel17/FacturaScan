@@ -23,7 +23,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
+import yosel.dev.facturascan.core.components.CustomSnackbarHost
+import yosel.dev.facturascan.core.components.DeleteConfirmationDialog
 import yosel.dev.facturascan.core.components.ErrorDialog
+import yosel.dev.facturascan.core.components.LoadingDialog
 import yosel.dev.facturascan.core.components.SnackBarError
 import yosel.dev.facturascan.core.components.TopBarGlobal
 import yosel.dev.facturascan.core.models.model.BillModel
@@ -41,9 +44,7 @@ fun DetailBillScreen(
     Scaffold(
         modifier = modifier,
         snackbarHost = {
-            SnackbarHost(hostState = snackBarHostState){ data ->
-                SnackBarError(data = data)
-            }
+            CustomSnackbarHost(hostState = snackBarHostState)
         },
         topBar = {
             TopBarGlobal(
@@ -52,7 +53,9 @@ fun DetailBillScreen(
                 actions = {
                     if (state.currentBill.id.isNotEmpty()){
                         IconButton(
-                            onClick = {}
+                            onClick = {
+                                onAction(DetailBillAction.OnClickDelete)
+                            }
                         ) {
 
                             Icon(
@@ -114,6 +117,27 @@ fun DetailBillScreen(
                 onDismissRequest = {
                     onAction(DetailBillAction.OnDismissErrorDialog)
                 }
+            )
+        }
+
+        if (state.showDialogDelete){
+            DeleteConfirmationDialog(
+                warningMessage = state.warningMessage,
+                onDismissRequest = {
+                    onAction(DetailBillAction.OnDismissDeleteDialog)
+                },
+                onConfirmDelete = {
+                    onAction(DetailBillAction.ConfirmDelete)
+                }
+            )
+        }
+
+        if (state.isLoadingDeleteBill){
+            LoadingDialog(
+                title = "Eliminando factura...",
+                subtitle = "Por favor espera un momento mientras eliminamos la factura",
+                color = MaterialTheme.colorScheme.error,
+                colorTitle = MaterialTheme.colorScheme.error
             )
         }
     }

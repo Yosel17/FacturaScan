@@ -19,4 +19,7 @@ interface BillDao {
 
     @Upsert
     suspend fun upsertBills(bills: List<BillEntity>)
+
+    @Query("DELETE FROM bills WHERE id = :id")
+    suspend fun deleteBillById(id: String)
 }

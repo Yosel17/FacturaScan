@@ -186,7 +186,8 @@ fun UploadBillScreen(
         if (state.isLoading){
             LoadingDialog(
                 title = "Escaneando factura...",
-                subtitle = "Por favor espera mientras procesamos el documento"
+                subtitle = "Por favor espera mientras procesamos el documento",
+                colorTitle = MaterialTheme.colorScheme.primary
             )
         }
     }

@@ -1,5 +1,6 @@
 package yosel.dev.facturascan.core.navigation
 
+import android.Manifest
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -26,9 +27,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import kotlinx.coroutines.launch
+import yosel.dev.facturascan.core.components.SnackbarType
+import yosel.dev.facturascan.core.components.showCustomSnackbar
 import yosel.dev.facturascan.core.utils.ObserveAsEvents
 import yosel.dev.facturascan.core.utils.createTempUri
 import yosel.dev.facturascan.core.utils.findActivity
+import yosel.dev.facturascan.screens.detail_bill.ui.DetailBillEvent
 import yosel.dev.facturascan.screens.detail_bill.ui.DetailBillScreen
 import yosel.dev.facturascan.screens.detail_bill.ui.DetailBillViewModel
 import yosel.dev.facturascan.screens.my_bills.ui.MyBillsEvent
@@ -138,7 +142,10 @@ fun EntryProviderScope<NavKey>.uploadBillEntry(
                     cameraLauncher.launch(uri)
                 }
                 UploadBillEvent.LaunchPermission -> {
-                    permissionLauncher.launch(android.Manifest.permission.CAMERA)
+                    permissionLauncher.launch(Manifest.permission.CAMERA)
+                }
+                is UploadBillEvent.OnNavigation ->{
+                    onNavigate(event.screen)
                 }
             }
         }
@@ -165,6 +172,32 @@ fun EntryProviderScope<NavKey>.detailBillEntry(
         )
         val state by viewModel.state.collectAsStateWithLifecycle()
         val snackbarHostState = remember { SnackbarHostState() }
+        val scope = rememberCoroutineScope()
+
+        ObserveAsEvents(viewModel.events) { event ->
+            when(event){
+                is DetailBillEvent.ShowErrorSnackbar -> {
+                    scope.launch {
+                        snackbarHostState.showCustomSnackbar(
+                            message = event.message,
+                            type = SnackbarType.ERROR
+                        )
+                    }
+                }
+
+                DetailBillEvent.NavigateBack -> {
+                    onBack()
+                }
+                is DetailBillEvent.ShowSuccessSnackbar -> {
+                    scope.launch {
+                        snackbarHostState.showCustomSnackbar(
+                            message = event.message,
+                            type = SnackbarType.SUCCESS
+                        )
+                    }
+                }
+            }
+        }
 
         DetailBillScreen(
             modifier = Modifier
