@@ -16,7 +16,8 @@ data class DetailBillState(
 ){
     // Evalúa si se ha modificado al menos un campo respecto a la factura original
     val isFormModified: Boolean
-        get() = formState.billNumber != currentBill.invoiceNumber ||
+        get() = formState.companyName != currentBill.companyName ||
+                formState.billNumber != currentBill.invoiceNumber ||
                 formState.serialNumber != currentBill.serialNumber ||
                 formState.issueDate != currentBill.issueDate ||
                 formState.vendorTaxId != currentBill.vendorTaxId ||

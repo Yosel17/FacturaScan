@@ -28,6 +28,7 @@ import androidx.compose.material.icons.outlined.BrokenImage
 import androidx.compose.material.icons.outlined.Business
 import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material.icons.outlined.ContentCopy
+import androidx.compose.material.icons.outlined.CorporateFare
 import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Key
@@ -393,6 +394,17 @@ fun BillDataForm(
             "Datos Extraídos",
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onBackground
+        )
+
+        BillInputField(
+            label = "Nombre de la empresa",
+            value = formState.companyName,
+            onValueChange = { onFormStateChange(it, Constants.COMPANY_NAME_FIELD) },
+            leadingIcon = Icons.Outlined.CorporateFare,
+            isError = formState.companyName.isBlank(),
+            errorMessage = "Este campo no puede estar vacío",
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+            onCopyClick = onCopyClick,
         )
 
         BillInputField(

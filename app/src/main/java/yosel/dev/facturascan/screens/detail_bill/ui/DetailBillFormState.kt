@@ -1,6 +1,7 @@
 package yosel.dev.facturascan.screens.detail_bill.ui
 
 data class DetailBillFormState(
+    val companyName: String = "",
     val serialNumber: String = "",
     val billNumber: String = "",
     val issueDate: String = "",
@@ -11,7 +12,8 @@ data class DetailBillFormState(
 ){
     // Validamos que ningún campo obligatorio esté vacío o en blanco
     val isValid: Boolean
-        get() = billNumber.isNotBlank() &&
+        get() = companyName.isNotBlank() &&
+                billNumber.isNotBlank() &&
                 serialNumber.isNotBlank() &&
                 issueDate.isNotBlank() &&
                 vendorTaxId.isNotBlank() &&
@@ -21,6 +23,7 @@ data class DetailBillFormState(
     // Formateador de texto a copiar
     val formattedCopyText: String
         get() = buildString {
+            if (companyName.isNotBlank()) appendLine("Nombre de la Empresa: $companyName")
             if (billNumber.isNotBlank()) appendLine("Número de Factura: $billNumber")
             if (serialNumber.isNotBlank()) appendLine("Número de Serie: $serialNumber")
             if (issueDate.isNotBlank()) appendLine("Fecha de Emisión: $issueDate")

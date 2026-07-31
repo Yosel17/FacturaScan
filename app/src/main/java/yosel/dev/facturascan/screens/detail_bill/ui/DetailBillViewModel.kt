@@ -113,6 +113,7 @@ class DetailBillViewModel @AssistedInject constructor(
 
     private fun onValueFormStateChange(value: String, field: Int){
         when(field){
+            Constants.COMPANY_NAME_FIELD -> _state.update { it.copy(formState = it.formState.copy(companyName = value)) }
             Constants.SERIAL_NUMBER_FIELD -> _state.update { it.copy(formState = it.formState.copy(serialNumber = value)) }
             Constants.BILL_NUMBER_FIELD -> _state.update { it.copy(formState = it.formState.copy(billNumber = value)) }
             Constants.ISSUE_DATE_FIELD -> _state.update { it.copy(formState = it.formState.copy(issueDate = value)) }
