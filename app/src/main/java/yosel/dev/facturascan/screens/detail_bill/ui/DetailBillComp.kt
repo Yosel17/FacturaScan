@@ -2,7 +2,6 @@ package yosel.dev.facturascan.screens.detail_bill.ui
 
 import android.content.ClipData
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -50,6 +49,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -242,68 +242,66 @@ fun BillInputField(
     maxLines: Int = 1,
     readOnly: Boolean = false,
     onClick: (() -> Unit)? = null,
-    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default
 ) {
     val clipboard = LocalClipboard.current
+    val interactionSource = remember { MutableInteractionSource() }
     val coroutineScope = rememberCoroutineScope()
 
-    Box(modifier = modifier.fillMaxWidth()) {
-        OutlinedTextField(
-            value = value,
-            onValueChange = onValueChange,
-            label = { Text(text = label) },
-            leadingIcon = {
-                Icon(
-                    imageVector = leadingIcon,
-                    contentDescription = null,
-                )
-            },
-            trailingIcon = {
-                if (value.isNotEmpty()) {
-                    IconButton(
-                        onClick = {
-                            coroutineScope.launch {
-                                val clipData = ClipData.newPlainText(label, value)
-                                clipboard.setClipEntry(ClipEntry(clipData))
-                                onCopyClick(label, value)
-                            }
-                        }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Outlined.ContentCopy,
-                            contentDescription = "Copiar $label",
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
+    // Interceptamos el tap/click sobre el campo cuando es de solo lectura
+    if (readOnly && onClick != null) {
+        LaunchedEffect(interactionSource) {
+            interactionSource.interactions.collect { interaction ->
+                if (interaction is androidx.compose.foundation.interaction.PressInteraction.Release) {
+                    onClick()
                 }
-            },
-            readOnly = readOnly,
-            singleLine = singleLine,
-            minLines = minLines,
-            maxLines = maxLines,
-            keyboardOptions = keyboardOptions,
-            shape = RoundedCornerShape(12.dp),
-            modifier = Modifier.fillMaxWidth(),
-            textStyle = MaterialTheme.typography.bodyLarge,
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedLeadingIconColor = MaterialTheme.colorScheme.primary,
-                unfocusedLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        )
-
-        // Overlay transparente para capturar el click cuando el campo es de solo lectura
-        if (readOnly && onClick != null) {
-            Box(
-                modifier = Modifier
-                    .matchParentSize()
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null,
-                        onClick = onClick
-                    )
-            )
+            }
         }
     }
+
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        label = { Text(text = label) },
+        leadingIcon = {
+            Icon(
+                imageVector = leadingIcon,
+                contentDescription = null,
+            )
+        },
+        trailingIcon = {
+            if (value.isNotEmpty()) {
+                IconButton(
+                    onClick = {
+                        coroutineScope.launch {
+                            val clipData = ClipData.newPlainText(label, value)
+                            clipboard.setClipEntry(ClipEntry(clipData))
+                            onCopyClick(label, value)
+                        }
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.ContentCopy,
+                        contentDescription = "Copiar $label",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        },
+        readOnly = readOnly,
+        singleLine = singleLine,
+        minLines = minLines,
+        maxLines = maxLines,
+        keyboardOptions = keyboardOptions,
+        interactionSource = interactionSource,
+        shape = RoundedCornerShape(12.dp),
+        modifier = modifier.fillMaxWidth(),
+        textStyle = MaterialTheme.typography.bodyLarge,
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedLeadingIconColor = MaterialTheme.colorScheme.primary,
+            unfocusedLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    )
 }
 
 @Composable
