@@ -1,6 +1,7 @@
 package yosel.dev.facturascan.core.data_source
 
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.tasks.await
 import yosel.dev.facturascan.core.models.request.BillRequest
 import yosel.dev.facturascan.core.models.response.BillResponse
@@ -29,6 +30,13 @@ class BillsDataSource @Inject constructor(
         firestore.collection(Constants.BILLS_COLLECTION)
             .document(id)
             .delete()
+            .await()
+    }
+
+    suspend fun updateBill(id: String, updates: Map<String, Any?>) {
+        firestore.collection(Constants.BILLS_COLLECTION)
+            .document(id)
+            .update(updates)
             .await()
     }
 

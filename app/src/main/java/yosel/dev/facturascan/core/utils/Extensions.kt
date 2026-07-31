@@ -102,6 +102,18 @@ fun BillModel.toRequest(): BillRequest = BillRequest(
     status = status
 )
 
+fun BillModel.toMap(): Map<String, Any?> {
+    return mapOf(
+        "vendorTaxId" to vendorTaxId,
+        "customerTaxId" to customerTaxId,
+        "invoiceNumber" to invoiceNumber,
+        "serialNumber" to serialNumber,
+        "issueDate" to issueDate,
+        "totalAmount" to totalAmount,
+        "description" to description,
+    )
+}
+
 fun BillEntity.toModel(): BillModel = BillModel(
     id = id,
     createdAt = createdAt,

@@ -6,6 +6,7 @@ import yosel.dev.facturascan.core.data_source.BillsDataSource
 import yosel.dev.facturascan.core.models.model.BillModel
 import yosel.dev.facturascan.core.room.tables.bill.BillDao
 import yosel.dev.facturascan.core.utils.toEntity
+import yosel.dev.facturascan.core.utils.toMap
 import yosel.dev.facturascan.core.utils.toModel
 import yosel.dev.facturascan.core.utils.toRequest
 import yosel.dev.facturascan.screens.detail_bill.domain.DetailBillRepository
@@ -60,6 +61,22 @@ class DetailBillRepositoryImpl @Inject constructor(
         return withContext(Dispatchers.IO) {
             try {
                 billsDataSource.deleteBill(id = idBill)
+                Result.success(Unit)
+            } catch (e: Exception) {
+                Result.failure(exception = e)
+            }
+        }
+    }
+
+    override suspend fun updateBill(bill: BillModel): Result<Unit> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val billEntity = bill.toEntity()
+                val updates = bill.toMap()
+
+                billDao.updateBill(bill = billEntity)
+                billsDataSource.updateBill(id = bill.id, updates = updates)
+
                 Result.success(Unit)
             } catch (e: Exception) {
                 Result.failure(exception = e)

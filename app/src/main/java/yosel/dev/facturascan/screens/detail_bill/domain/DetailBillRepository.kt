@@ -11,4 +11,6 @@ interface DetailBillRepository {
     suspend fun deleteBillRoom(idBill: String): Result<Unit>
 
     suspend fun deleteBillFirestore(idBill: String): Result<Unit>
+
+    suspend fun updateBill(bill: BillModel): Result<Unit>
 }
