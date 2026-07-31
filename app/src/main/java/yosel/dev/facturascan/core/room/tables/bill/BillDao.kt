@@ -2,6 +2,7 @@ package yosel.dev.facturascan.core.room.tables.bill
 
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.Update
 import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
 
@@ -22,4 +23,7 @@ interface BillDao {
 
     @Query("DELETE FROM bills WHERE id = :id")
     suspend fun deleteBillById(id: String)
+
+    @Update
+    suspend fun updateBill(bill: BillEntity)
 }
