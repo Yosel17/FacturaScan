@@ -420,7 +420,7 @@ fun BillDataForm(
 
         // 7. Descripción
         BillInputField(
-            label = "Descripción",
+            label = "Descripción (opcional)",
             value = formState.description,
             onValueChange = { onFormStateChange(it, Constants.DESCRIPTION_FIELD) },
             leadingIcon = Icons.Outlined.Description,
