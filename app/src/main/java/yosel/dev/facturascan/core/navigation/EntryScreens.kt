@@ -1,5 +1,6 @@
 package yosel.dev.facturascan.core.navigation
 
+import android.Manifest
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -138,7 +139,10 @@ fun EntryProviderScope<NavKey>.uploadBillEntry(
                     cameraLauncher.launch(uri)
                 }
                 UploadBillEvent.LaunchPermission -> {
-                    permissionLauncher.launch(android.Manifest.permission.CAMERA)
+                    permissionLauncher.launch(Manifest.permission.CAMERA)
+                }
+                is UploadBillEvent.OnNavigation ->{
+                    onNavigate(event.screen)
                 }
             }
         }

@@ -1,5 +1,6 @@
 package yosel.dev.facturascan.screens.upload_bill.ui
 
+import androidx.compose.material3.ScrollField
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -10,6 +11,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import yosel.dev.facturascan.core.models.model.BillModel
+import yosel.dev.facturascan.core.navigation.Screens
 import yosel.dev.facturascan.core.utils.Constants
 import yosel.dev.facturascan.screens.upload_bill.domain.UploadBillRepository
 import java.util.UUID
@@ -105,6 +107,11 @@ class UploadBillViewModel @Inject constructor(
                 _state.update {
                     it.copy(isLoading = false)
                 }
+                _eventChannel.send(
+                    UploadBillEvent.OnNavigation(
+                        screen = Screens.DetailBill(idBill = bill.id)
+                    )
+                )
             }.onFailure { error ->
                 _state.update {
                     it.copy(isLoading = false)
