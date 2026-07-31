@@ -132,7 +132,7 @@ class DetailBillViewModel @AssistedInject constructor(
                         delay(1000.milliseconds)
                         _eventChannel.send(DetailBillEvent.NavigateBack)
                     }else {
-
+                        deleteBillFirestore()
                     }
                 }.onFailure { error ->
                     _state.update {
@@ -145,5 +145,26 @@ class DetailBillViewModel @AssistedInject constructor(
                     )
                 }
         }
+    }
+
+    private suspend fun deleteBillFirestore(){
+        repository.deleteBillFirestore(_state.value.currentBill.id)
+            .onSuccess {
+                _state.update { it.copy(isLoadingDeleteBill = false) }
+                _eventChannel.send(
+                    DetailBillEvent.ShowSuccessSnackbar("Factura eliminada con éxito")
+                )
+                delay(1000.milliseconds)
+                _eventChannel.send(DetailBillEvent.NavigateBack)
+            }.onFailure {
+                _state.update {
+                    it.copy(isLoadingDeleteBill = false)
+                }
+                _eventChannel.send(
+                    element = DetailBillEvent.ShowErrorSnackbar(
+                        "No pudimos eliminar la factura de la nube. Inténtalo de nuevo."
+                    )
+                )
+            }
     }
 }
