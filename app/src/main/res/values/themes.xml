@@ -2,4 +2,18 @@
 <resources>
 
     <style name="Theme.FacturaScan" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
+        <!-- 1. Color de fondo (tomará el claro o el oscuro automáticamente) -->
+        <item name="windowSplashScreenBackground">@color/splash_background</item>
+
+        <!-- 2. Tu ícono personalizado -->
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+
+        <!-- (Opcional) Duración de la animación del ícono si es animado (máx 1000ms) -->
+        <item name="windowSplashScreenAnimationDuration">500</item>
+
+        <!-- 3. El tema que se aplicará DESPUÉS del Splash (tu tema principal de Compose) -->
+        <item name="postSplashScreenTheme">@style/Theme.FacturaScan</item>
+    </style>
 </resources>
