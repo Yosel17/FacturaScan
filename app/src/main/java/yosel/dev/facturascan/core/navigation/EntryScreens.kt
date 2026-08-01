@@ -38,6 +38,9 @@ import yosel.dev.facturascan.screens.detail_bill.ui.DetailBillViewModel
 import yosel.dev.facturascan.screens.my_bills.ui.MyBillsEvent
 import yosel.dev.facturascan.screens.my_bills.ui.MyBillsScreen
 import yosel.dev.facturascan.screens.my_bills.ui.MyBillsViewModel
+import yosel.dev.facturascan.screens.register.ui.RegisterEvent
+import yosel.dev.facturascan.screens.register.ui.RegisterScreen
+import yosel.dev.facturascan.screens.register.ui.RegisterViewModel
 import yosel.dev.facturascan.screens.upload_bill.ui.UploadBillAction
 import yosel.dev.facturascan.screens.upload_bill.ui.UploadBillEvent
 import yosel.dev.facturascan.screens.upload_bill.ui.UploadBillScreen
@@ -218,6 +221,31 @@ fun EntryProviderScope<NavKey>.registerEntry(
     onNavigate: (Screens) -> Unit
 ){
     entry<Screens.Register> {
+        val viewModel: RegisterViewModel = hiltViewModel()
+        val state by viewModel.state.collectAsStateWithLifecycle()
+        val snackbarHostState = remember { SnackbarHostState() }
+        val scope = rememberCoroutineScope()
 
+        ObserveAsEvents(viewModel.events) { event ->
+            when (event) {
+                is RegisterEvent.ShowErrorSnackbar -> {
+                    scope.launch {
+                        snackbarHostState.showSnackbar(event.message)
+                    }
+                }
+                is RegisterEvent.OnNavigation -> {
+                    onNavigate(event.screen)
+                }
+            }
+        }
+
+        RegisterScreen(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+            state = state,
+            snackbarHostState = snackbarHostState,
+            onAction = viewModel::onAction
+        )
     }
 }

@@ -160,6 +160,13 @@ fun UserResponse.toModel(): UserModel = UserModel(
     devices = devices,
     status = status
 )
+
+fun UserResponse.toMap(): Map<String, Any?> {
+    return mapOf(
+        "firstDevice" to firstDevice,
+        "devices" to devices,
+    )
+}
 fun List<BillResponse>.toBillListResponseToModel(): List<BillModel>{
     return map { it.toModel() }
 }
