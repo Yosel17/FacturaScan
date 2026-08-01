@@ -47,6 +47,12 @@ fun AppNavigation(startDestination: Screens) {
                     backStack.removeLastOrNull()
                 }
             )
+
+            registerEntry(
+                onNavigate = { screen ->
+                    backStack.add(screen)
+                }
+            )
         }
     )
 }
