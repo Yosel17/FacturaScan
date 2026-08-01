@@ -20,7 +20,7 @@ import javax.inject.Inject
 @HiltViewModel
 class UploadBillViewModel @Inject constructor(
     private val repository: UploadBillRepository
-): ViewModel() {
+) : ViewModel() {
 
     private val _state = MutableStateFlow(UploadBillState())
     val state: StateFlow<UploadBillState> = _state
@@ -35,46 +35,55 @@ class UploadBillViewModel @Inject constructor(
                     _eventChannel.send(UploadBillEvent.NavigateBack)
                 }
             }
+
             UploadBillAction.OnUploadBillClick -> {
                 _state.update { it.copy(isBottomSheetVisible = true) }
             }
+
             UploadBillAction.OnDismissBottomSheet -> {
                 _state.update { it.copy(isBottomSheetVisible = false) }
             }
+
             UploadBillAction.OnSelectCameraClick -> {
                 _state.update { it.copy(isBottomSheetVisible = false) }
                 viewModelScope.launch {
                     _eventChannel.send(UploadBillEvent.LaunchCamera)
                 }
             }
+
             UploadBillAction.OnSelectGalleryClick -> {
                 _state.update { it.copy(isBottomSheetVisible = false) }
                 viewModelScope.launch {
                     _eventChannel.send(UploadBillEvent.LaunchGallery)
                 }
             }
+
             UploadBillAction.OnObtainPermits -> {
                 _state.update { it.copy(isBottomSheetVisible = false) }
                 viewModelScope.launch {
                     _eventChannel.send(UploadBillEvent.LaunchPermission)
                 }
             }
+
             is UploadBillAction.OnImageSelected -> {
                 _state.update { it.copy(imageUri = action.uri) }
             }
+
             UploadBillAction.OnProcessBillClick -> {
                 processInvoice()
             }
+
             is UploadBillAction.OnToggleRationaleDialog -> {
                 _state.update { it.copy(showRationaleDialog = action.show) }
             }
+
             is UploadBillAction.OnToggleSettingsDialog -> {
                 _state.update { it.copy(showSettingsDialog = action.show) }
             }
         }
     }
 
-    private fun processInvoice(){
+    private fun processInvoice() {
         val currentUri = _state.value.imageUri ?: return
 
         viewModelScope.launch {
@@ -82,11 +91,30 @@ class UploadBillViewModel @Inject constructor(
 
             repository.processInvoice(currentUri)
                 .onSuccess { billModel ->
-                    val bill = billModel.copy(
-                        id = UUID.randomUUID().toString(),
-                        status = Constants.DRAFT_STATUS
-                    )
-                    saveBillRoom(bill = bill)
+                    if (
+                        billModel.companyName.isEmpty() &&
+                        billModel.invoiceNumber.isEmpty() &&
+                        billModel.serialNumber.isEmpty() &&
+                        billModel.issueDate.isEmpty() &&
+                        billModel.vendorTaxId.isEmpty() &&
+                        billModel.customerTaxId.isEmpty() &&
+                        billModel.totalAmount == 0.0
+                    ){
+                        _state.update {
+                            it.copy(isLoading = false)
+                        }
+                        _eventChannel.send(
+                            element = UploadBillEvent.ShowErrorSnackbar(
+                                "Imagen no válida o ilegible. Prueba con otra foto."
+                            )
+                        )
+                    }else{
+                        val bill = billModel.copy(
+                            id = UUID.randomUUID().toString(),
+                            status = Constants.DRAFT_STATUS
+                        )
+                        saveBillRoom(bill = bill)
+                    }
                 }
                 .onFailure { error ->
                     _state.update {
@@ -101,7 +129,7 @@ class UploadBillViewModel @Inject constructor(
         }
     }
 
-    private suspend fun saveBillRoom(bill: BillModel){
+    private suspend fun saveBillRoom(bill: BillModel) {
         repository.saveBillRoom(bill = bill)
             .onSuccess {
                 _state.update {

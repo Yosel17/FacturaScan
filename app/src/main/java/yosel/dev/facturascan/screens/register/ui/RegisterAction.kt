@@ -5,5 +5,4 @@ sealed interface RegisterAction {
     data class OnAccessCodeChanged(val code: String) : RegisterAction
     data object OnTogglePasswordVisibility : RegisterAction
     data object OnSubmitClick : RegisterAction
-    data object OnDismissErrorDialog : RegisterAction
 }

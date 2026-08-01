@@ -72,15 +72,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
 import kotlinx.coroutines.launch
 import yosel.dev.facturascan.core.utils.Constants
 import yosel.dev.facturascan.core.utils.parseIssueDateToMillis
 import yosel.dev.facturascan.core.utils.toFormattedIssueDate
+import yosel.dev.facturascan.screens.my_bills.ui.BillStatus
 import yosel.dev.facturascan.ui.theme.FacturaScanTheme
+import yosel.dev.facturascan.ui.theme.extendedColors
 
 
 @Composable
@@ -106,6 +110,7 @@ fun BodyDetailBill(
         item {
             BillDataForm(
                 formState = state.formState,
+                billStatus = state.currentBill.status,
                 onFormStateChange = { value, field ->
                     onAction(DetailBillAction.OnChangeValueFormState(value, field))
                 },
@@ -170,7 +175,7 @@ fun InvoiceImageHeader(
         contentScale = ContentScale.Crop,
         modifier = modifier
             .fillMaxWidth()
-            .aspectRatio(16f / 10f)
+            .aspectRatio(16f / 16f)
             .clip(imageShape)
             .background(MaterialTheme.colorScheme.surfaceVariant),
         loading = {
@@ -382,6 +387,7 @@ fun BillDataForm(
     formState: DetailBillFormState,
     onFormStateChange: (String, Int) -> Unit,
     onCopyClick: (String, String) -> Unit,
+    billStatus: Int,
     modifier: Modifier = Modifier
 ) {
     var showDatePicker by rememberSaveable { mutableStateOf(false) }
@@ -390,11 +396,44 @@ fun BillDataForm(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Text(
-            "Datos Extraídos",
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onBackground
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                "Datos Extraídos",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+
+            // Mapeo dinámico de estado consumiendo extendedColors
+            val status = BillStatus.fromCode(billStatus)
+            val (containerColor, onContainerColor) = when (status) {
+                BillStatus.DRAFT -> MaterialTheme.extendedColors.draftContainer to MaterialTheme.extendedColors.onDraftContainer
+                BillStatus.SAVED -> MaterialTheme.extendedColors.savedContainer to MaterialTheme.extendedColors.onSavedContainer
+            }
+
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(6.dp))
+                    .background(containerColor)
+                    .padding(horizontal = 8.dp, vertical = 2.dp)
+                    .align(Alignment.CenterVertically)
+            ) {
+                Text(
+                    text = status.label,
+                    style = MaterialTheme.typography.labelSmall.copy(
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Medium
+                    ),
+                    color = onContainerColor,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
+
 
         BillInputField(
             label = "Nombre de la empresa",

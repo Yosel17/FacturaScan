@@ -14,8 +14,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
-import yosel.dev.facturascan.core.components.ErrorDialog
-import yosel.dev.facturascan.core.components.LoadingDialog
 import yosel.dev.facturascan.core.components.SnackBarError
 import yosel.dev.facturascan.ui.theme.FacturaScanTheme
 
@@ -47,13 +45,6 @@ fun RegisterScreen(
                     .padding(horizontal = 24.dp),
                 state = state,
                 onAction = onAction
-            )
-        }
-
-        if (state.isError) {
-            ErrorDialog(
-                message = state.errorMessage,
-                onDismissRequest = { onAction(RegisterAction.OnDismissErrorDialog) }
             )
         }
     }
