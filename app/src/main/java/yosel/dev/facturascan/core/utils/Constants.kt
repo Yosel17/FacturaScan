@@ -16,6 +16,7 @@ object Constants {
     const val CUSTOMER_TAX_ID = 5
     const val TOTAL_AMOUNT_FIELD = 6
     const val DESCRIPTION_FIELD = 7
+    const val COMPANY_NAME_FIELD = 8
 
     //status bill
     const val DRAFT_STATUS = 0
