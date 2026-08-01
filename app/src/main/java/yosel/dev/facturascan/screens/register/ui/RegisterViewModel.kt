@@ -38,9 +38,6 @@ class RegisterViewModel @Inject constructor(
             RegisterAction.OnSubmitClick -> {
                 registerUser()
             }
-            RegisterAction.OnDismissErrorDialog -> {
-                _state.update { it.copy(isError = false, errorMessage = "") }
-            }
         }
     }
 
