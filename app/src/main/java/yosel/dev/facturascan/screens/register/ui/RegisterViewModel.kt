@@ -10,11 +10,12 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import yosel.dev.facturascan.core.navigation.Screens
+import yosel.dev.facturascan.screens.register.domain.RegisterRepository
 import javax.inject.Inject
 
 @HiltViewModel
 class RegisterViewModel @Inject constructor(
-    // private val repository: RegisterRepository
+    private val repository: RegisterRepository
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(RegisterState())
@@ -47,26 +48,20 @@ class RegisterViewModel @Inject constructor(
         if (!_state.value.isSubmitEnabled) return
 
         viewModelScope.launch {
-            _state.update { it.copy(isLoading = true) }
 
-            // =========================================================================
-            // CAPA DE DATOS Y DOMINIO PENDIENTE
-            // Ejemplo de llamada futura al repositorio:
-            //
-            // repository.registerUser(name = _state.value.name, code = _state.value.accessCode)
-            //     .onSuccess {
-            //         _state.update { it.copy(isLoading = false) }
-            //         _eventChannel.send(RegisterEvent.OnNavigation(Screens.MyBills))
-            //     }
-            //     .onFailure { error ->
-            //         _state.update { it.copy(isLoading = false) }
-            //         _eventChannel.send(RegisterEvent.ShowErrorSnackbar(error.localizedMessage ?: "Error al acceder"))
-            //     }
-            // =========================================================================
+            val cs = _state.value
 
-            // Simulación temporal para navegación UI
-            _state.update { it.copy(isLoading = false) }
-            _eventChannel.send(RegisterEvent.OnNavigation(Screens.MyBills))
+            _state.update { it.copy(isLoading = true, enableFields = false) }
+
+            repository.registerUser(name = cs.name, accessCode = cs.accessCode)
+                .onSuccess {
+                    _state.update { it.copy(isLoading = false, enableFields = true) }
+                    _eventChannel.send(RegisterEvent.OnNavigation(Screens.MyBills))
+                }.onFailure { error ->
+                    _state.update { it.copy(isLoading = false, enableFields = true) }
+                    _eventChannel.send(RegisterEvent.ShowErrorSnackbar(error.localizedMessage ?: "Error al acceder"))
+                }
+
         }
     }
 }

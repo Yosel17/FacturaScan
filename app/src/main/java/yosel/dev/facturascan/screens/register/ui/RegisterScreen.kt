@@ -50,14 +50,6 @@ fun RegisterScreen(
             )
         }
 
-        if (state.isLoading) {
-            LoadingDialog(
-                title = "Iniciando sesión...",
-                subtitle = "Por favor espera mientras validamos tus credenciales",
-                colorTitle = MaterialTheme.colorScheme.primary
-            )
-        }
-
         if (state.isError) {
             ErrorDialog(
                 message = state.errorMessage,
@@ -75,7 +67,11 @@ private fun RegisterScreenPreview() {
             modifier = Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background),
-            state = RegisterState(),
+            state = RegisterState(
+                name = "asdjkfad",
+                accessCode = "adfasdf",
+                isLoading = true
+            ),
             snackbarHostState = SnackbarHostState(),
             onAction = {}
         )

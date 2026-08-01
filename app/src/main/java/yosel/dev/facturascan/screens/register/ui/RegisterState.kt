@@ -6,7 +6,8 @@ data class RegisterState(
     val isPasswordVisible: Boolean = false,
     val isLoading: Boolean = false,
     val isError: Boolean = false,
-    val errorMessage: String = ""
+    val errorMessage: String = "",
+    val enableFields: Boolean = true
 ) {
     val isSubmitEnabled: Boolean
         get() = name.isNotBlank() && accessCode.isNotBlank() && !isLoading

@@ -50,6 +50,9 @@ fun AppNavigation(startDestination: Screens) {
 
             registerEntry(
                 onNavigate = { screen ->
+                    if (screen is Screens.MyBills) {
+                        backStack.removeLastOrNull()
+                    }
                     backStack.add(screen)
                 }
             )
