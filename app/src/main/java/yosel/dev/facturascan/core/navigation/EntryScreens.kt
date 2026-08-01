@@ -213,3 +213,11 @@ fun EntryProviderScope<NavKey>.detailBillEntry(
 
     }
 }
+
+fun EntryProviderScope<NavKey>.registerEntry(
+    onNavigate: (Screens) -> Unit
+){
+    entry<Screens.Register> {
+
+    }
+}

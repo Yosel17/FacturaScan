@@ -13,4 +13,7 @@ sealed interface Screens: NavKey {
 
     @Serializable
     data class DetailBill(val idBill: String): Screens
+
+    @Serializable
+    data object Register: Screens
 }
