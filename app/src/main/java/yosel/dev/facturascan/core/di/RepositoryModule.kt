@@ -10,6 +10,8 @@ import yosel.dev.facturascan.screens.my_bills.data.MyBillsRepositoryImpl
 import yosel.dev.facturascan.screens.my_bills.domain.MyBillsRepository
 import yosel.dev.facturascan.screens.upload_bill.data.UploadBillRepositoryImpl
 import yosel.dev.facturascan.screens.upload_bill.domain.UploadBillRepository
+import yosel.dev.facturascan.splash.data.SplashRepositoryImpl
+import yosel.dev.facturascan.splash.domain.SplashRepository
 import javax.inject.Singleton
 
 @Module
@@ -33,4 +35,10 @@ abstract class RepositoryModule {
     abstract fun bindDetailBillRepository(
         impl: DetailBillRepositoryImpl
     ): DetailBillRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindSplashRepository(
+        impl: SplashRepositoryImpl
+    ): SplashRepository
 }

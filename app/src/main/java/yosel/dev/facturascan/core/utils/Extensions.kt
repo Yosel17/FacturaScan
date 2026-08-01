@@ -9,9 +9,11 @@ import android.provider.Settings
 import androidx.core.content.FileProvider
 import yosel.dev.facturascan.core.models.ai.BillAiResponse
 import yosel.dev.facturascan.core.models.model.BillModel
+import yosel.dev.facturascan.core.models.model.UserModel
 import yosel.dev.facturascan.core.models.request.BillRequest
 import yosel.dev.facturascan.core.models.response.BillResponse
 import yosel.dev.facturascan.core.room.tables.bill.BillEntity
+import yosel.dev.facturascan.core.room.tables.user.UserEntity
 import java.io.File
 import java.lang.System
 import java.text.DecimalFormat
@@ -128,6 +130,15 @@ fun BillEntity.toModel(): BillModel = BillModel(
     totalAmount = totalAmount,
     description = description,
     imageUrl = imageUrl,
+    status = status
+)
+
+fun UserEntity.toModel(): UserModel = UserModel(
+    id = id,
+    name = name,
+    accessCode = accessCode,
+    firstDevice = firstDevice,
+    devices = devices,
     status = status
 )
 fun List<BillResponse>.toBillListResponseToModel(): List<BillModel>{
