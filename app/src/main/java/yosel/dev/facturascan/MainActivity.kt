@@ -11,6 +11,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import yosel.dev.facturascan.core.navigation.AppNavigation
 import yosel.dev.facturascan.core.navigation.Screens
+import yosel.dev.facturascan.splash.ui.AccountDisabledScreen
 import yosel.dev.facturascan.splash.ui.BootErrorScreen
 import yosel.dev.facturascan.splash.ui.SplashViewModel
 import yosel.dev.facturascan.ui.theme.FacturaScanTheme
@@ -28,10 +29,15 @@ class MainActivity : ComponentActivity() {
             splashViewModel.isLoading.value
         }
         setContent {
+
             val startDestination by splashViewModel.startDestination.collectAsStateWithLifecycle()
             val initializationError by splashViewModel.initializationError.collectAsStateWithLifecycle()
+            val deactivatedUser by splashViewModel.deactivatedUser.collectAsStateWithLifecycle()
+
             FacturaScanTheme {
-                if (startDestination != null){
+                if (deactivatedUser != null){
+                    AccountDisabledScreen()
+                } else if (startDestination != null){
                     AppNavigation(startDestination = startDestination!!)
                 } else if(initializationError != null){
                     BootErrorScreen(

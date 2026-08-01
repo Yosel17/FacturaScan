@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import yosel.dev.facturascan.core.navigation.Screens
+import yosel.dev.facturascan.core.utils.Constants
 import yosel.dev.facturascan.splash.domain.SplashRepository
 import javax.inject.Inject
 
@@ -23,6 +24,9 @@ class SplashViewModel @Inject constructor(
     private val _initializationError = MutableStateFlow<String?>(null)
     val initializationError = _initializationError.asStateFlow()
 
+    private val _deactivatedUser = MutableStateFlow<Boolean?>(null)
+    val deactivatedUser = _deactivatedUser.asStateFlow()
+
     init {
         getInfoUser()
     }
@@ -34,12 +38,28 @@ class SplashViewModel @Inject constructor(
                     if (user == null){
                         _startDestination.value = Screens.Register
                     }else{
-                        //aqui recuperaremos la info del user de la nube y la actualizares en room
+                        getInfoUserFromFirestore(user.id)
                     }
                 }.onFailure { error ->
                     handleInitializationError(error)
                 }
         }
+    }
+
+    private suspend fun getInfoUserFromFirestore(id: String){
+        splashRepository.getInfoUserFromFirestoreAndSync(id = id)
+            .onSuccess { user ->
+                if (user.status == Constants.AVAILABLE_USER_STATE){
+                    _startDestination.value = Screens.MyBills
+                    _isLoading.value = false
+                }else{
+                    _deactivatedUser.value = true
+                    _isLoading.value = false
+                }
+
+            }.onFailure { error ->
+                handleInitializationError(error)
+            }
     }
 
     private fun handleInitializationError(error: Throwable) {

@@ -22,4 +22,8 @@ object Constants {
     //status bill
     const val DRAFT_STATUS = 0
     const val SAVE_STATUS = 1
+
+    //status user
+    const val AVAILABLE_USER_STATE = 1
+    const val DEACTIVATED_USER_STATE = 2
 }
