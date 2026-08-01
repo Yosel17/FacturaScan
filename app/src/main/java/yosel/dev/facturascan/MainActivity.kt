@@ -5,12 +5,15 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import yosel.dev.facturascan.core.navigation.AppNavigation
-import yosel.dev.facturascan.core.navigation.Screens
 import yosel.dev.facturascan.splash.ui.AccountDisabledScreen
 import yosel.dev.facturascan.splash.ui.BootErrorScreen
 import yosel.dev.facturascan.splash.ui.SplashViewModel
@@ -35,14 +38,19 @@ class MainActivity : ComponentActivity() {
             val deactivatedUser by splashViewModel.deactivatedUser.collectAsStateWithLifecycle()
 
             FacturaScanTheme {
-                if (deactivatedUser != null){
-                    AccountDisabledScreen()
-                } else if (startDestination != null){
-                    AppNavigation(startDestination = startDestination!!)
-                } else if(initializationError != null){
-                    BootErrorScreen(
-                        error = initializationError!!,
-                    )
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    if (deactivatedUser != null){
+                        AccountDisabledScreen()
+                    } else if (startDestination != null){
+                        AppNavigation(startDestination = startDestination!!)
+                    } else if(initializationError != null){
+                        BootErrorScreen(
+                            error = initializationError!!,
+                        )
+                    }
                 }
             }
         }
