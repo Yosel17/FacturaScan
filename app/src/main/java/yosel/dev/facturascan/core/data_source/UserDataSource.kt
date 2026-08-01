@@ -16,4 +16,22 @@ class UserDataSource @Inject constructor(
             .await()
             .toObject(UserResponse::class.java)
     }
+
+    suspend fun getUserByName(name: String): UserResponse? {
+        return firestore.collection(Constants.USERS_COLLECTION)
+            .whereEqualTo("name", name)
+            .limit(1)
+            .get()
+            .await()
+            .documents
+            .firstOrNull()
+            ?.toObject(UserResponse::class.java)
+    }
+
+    suspend fun updateUser(id: String, updates: Map<String, Any?>) {
+        firestore.collection(Constants.USERS_COLLECTION)
+            .document(id)
+            .update(updates)
+            .await()
+    }
 }

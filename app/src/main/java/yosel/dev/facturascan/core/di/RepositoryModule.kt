@@ -8,6 +8,8 @@ import yosel.dev.facturascan.screens.detail_bill.data.DetailBillRepositoryImpl
 import yosel.dev.facturascan.screens.detail_bill.domain.DetailBillRepository
 import yosel.dev.facturascan.screens.my_bills.data.MyBillsRepositoryImpl
 import yosel.dev.facturascan.screens.my_bills.domain.MyBillsRepository
+import yosel.dev.facturascan.screens.register.data.RegisterRepositoryImpl
+import yosel.dev.facturascan.screens.register.domain.RegisterRepository
 import yosel.dev.facturascan.screens.upload_bill.data.UploadBillRepositoryImpl
 import yosel.dev.facturascan.screens.upload_bill.domain.UploadBillRepository
 import yosel.dev.facturascan.splash.data.SplashRepositoryImpl
@@ -41,4 +43,10 @@ abstract class RepositoryModule {
     abstract fun bindSplashRepository(
         impl: SplashRepositoryImpl
     ): SplashRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindRegisterRepository(
+        impl: RegisterRepositoryImpl
+    ): RegisterRepository
 }
