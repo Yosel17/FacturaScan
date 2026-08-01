@@ -37,6 +37,7 @@ class SplashViewModel @Inject constructor(
                 .onSuccess { user ->
                     if (user == null){
                         _startDestination.value = Screens.Register
+                        _isLoading.value = false
                     }else{
                         getInfoUserFromFirestore(user.id)
                     }
