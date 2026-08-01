@@ -104,6 +104,7 @@ fun BillModel.toRequest(): BillRequest = BillRequest(
 
 fun BillModel.toMap(): Map<String, Any?> {
     return mapOf(
+        "companyName" to companyName,
         "vendorTaxId" to vendorTaxId,
         "customerTaxId" to customerTaxId,
         "invoiceNumber" to invoiceNumber,
