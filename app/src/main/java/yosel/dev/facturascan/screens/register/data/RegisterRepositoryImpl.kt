@@ -4,6 +4,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import yosel.dev.facturascan.core.data_source.UserDataSource
 import yosel.dev.facturascan.core.room.tables.user.UserDao
+import yosel.dev.facturascan.core.utils.Constants
 import yosel.dev.facturascan.core.utils.toEntity
 import yosel.dev.facturascan.core.utils.toMap
 import yosel.dev.facturascan.screens.register.domain.RegisterRepository
@@ -25,6 +26,10 @@ class RegisterRepositoryImpl @Inject constructor(
                     return@withContext Result.failure(Exception("El código de acceso es incorrecto"))
                 }
 
+                if (user.status == Constants.DEACTIVATED_USER_STATE){
+                    return@withContext Result.failure(Exception("El usuario se encuentra desactivado"))
+                }
+
                 val idDevice = UUID.randomUUID().toString()
 
                 val newUser = if (user.firstDevice.isEmpty()) {
@@ -36,7 +41,7 @@ class RegisterRepositoryImpl @Inject constructor(
                 userDao.upsertUser(newUser.toEntity())
                 userDataSource.updateUser(id = newUser.id, updates = newUser.toMap())
 
-                return@withContext Result.success(Unit)
+                Result.success(Unit)
             } catch (e: Exception) {
                 Result.failure(exception = e)
             }
