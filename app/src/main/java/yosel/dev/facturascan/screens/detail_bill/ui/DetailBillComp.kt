@@ -170,7 +170,7 @@ fun InvoiceImageHeader(
         contentScale = ContentScale.Crop,
         modifier = modifier
             .fillMaxWidth()
-            .aspectRatio(16f / 10f)
+            .aspectRatio(16f / 16f)
             .clip(imageShape)
             .background(MaterialTheme.colorScheme.surfaceVariant),
         loading = {
