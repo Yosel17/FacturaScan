@@ -4,6 +4,7 @@ object Constants {
 
     //Firestore
     const val BILLS_COLLECTION = "Bills"
+    const val USERS_COLLECTION = "Users"
 
     //Room
     const val TABLE_NAME = "table_facturascan"

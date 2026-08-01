@@ -12,6 +12,7 @@ import yosel.dev.facturascan.core.models.model.BillModel
 import yosel.dev.facturascan.core.models.model.UserModel
 import yosel.dev.facturascan.core.models.request.BillRequest
 import yosel.dev.facturascan.core.models.response.BillResponse
+import yosel.dev.facturascan.core.models.response.UserResponse
 import yosel.dev.facturascan.core.room.tables.bill.BillEntity
 import yosel.dev.facturascan.core.room.tables.user.UserEntity
 import java.io.File
@@ -134,6 +135,24 @@ fun BillEntity.toModel(): BillModel = BillModel(
 )
 
 fun UserEntity.toModel(): UserModel = UserModel(
+    id = id,
+    name = name,
+    accessCode = accessCode,
+    firstDevice = firstDevice,
+    devices = devices,
+    status = status
+)
+
+fun UserResponse.toEntity(): UserEntity = UserEntity(
+    id = id,
+    name = name,
+    accessCode = accessCode,
+    firstDevice = firstDevice,
+    devices = devices,
+    status = status
+)
+
+fun UserResponse.toModel(): UserModel = UserModel(
     id = id,
     name = name,
     accessCode = accessCode,

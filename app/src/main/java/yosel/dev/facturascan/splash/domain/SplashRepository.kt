@@ -6,4 +6,6 @@ interface SplashRepository {
 
     suspend fun getInfoUser(): Result<UserModel?>
 
+    suspend fun getInfoUserFromFirestoreAndSync(id: String): Result<UserModel>
+
 }
