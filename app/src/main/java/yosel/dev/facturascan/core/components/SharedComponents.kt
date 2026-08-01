@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -26,8 +27,10 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import yosel.dev.facturascan.R
 
 @Composable
 fun SnackBarError(
@@ -110,17 +113,31 @@ fun TopBarGlobal(
     title: String,
     modifier: Modifier = Modifier,
     onBack: (() -> Unit)? = null,
+    showIconApp: Boolean = false,
     actions: @Composable RowScope.() -> Unit = {}
 ) {
     TopAppBar(
         title = {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold)
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (showIconApp){
+                    Icon(
+                        modifier = Modifier.size(32.dp),
+                        painter = painterResource(id = R.drawable.ic_app),
+                        contentDescription = "ic app"
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                }
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold)
+                )
+            }
         },
         modifier = modifier,
         navigationIcon = {
+
             if (onBack != null) {
                 IconButton(onClick = onBack) {
                     Icon(

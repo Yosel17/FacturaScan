@@ -44,7 +44,8 @@ fun MyBillsScreen(
         },
         topBar = {
             TopBarGlobal(
-                title = "FacturaScan"
+                title = "FacturaScan",
+                showIconApp = true
             )
         },
         floatingActionButton = {
